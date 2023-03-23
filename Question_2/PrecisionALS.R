@@ -1,9 +1,7 @@
 #### Precision ALS ####
 source ("https://raw.githubusercontent.com/rpavaneijk/Basics/master/Source_Basics.R")
-#D <- read.xlsx ("/Users/rpavaneijk/SurfDrive/Statistics/Data/Precision ALS/P-ALS_Ext_ALSFRS-R.xlsx",
-               # detectDates = F)
-
-D <- read.xlsx("P-ALS_Ext_ALSFRS-R.xlsx", detectDates = F)
+D <- read.xlsx('/Users/daphneweemering/surfdrive/data/precision/P-ALS_Ext_ALSFRS-R.xlsx', 
+               detectDates = F)
 
 #. Rename cols
 D <- rn (D, 
@@ -74,7 +72,7 @@ D <- D[!(D$ID == "FRA-0048" & D$TOTAL == 0), ]
 D <- D[!(D$ID == "NLD-0087" & D$TIME == 0), ]
 D <- D[!(D$ID == "NLD-0253" & D$AGE == 65.56), ]
 
-D[(D$ID == "BEL-1098" & D$DATE == "2018-01-22"), ]$DATE <- "2019-01-22"
+D[(D$ID == "BEL-1098" & D$DATE == "2018-01-22"), ]$DATE <- "2019-01-22" 
 D[(D$ID == "FRA-0260" & D$DATE == "2004-03-15"), ]$DATE <- "2005-03-15"
 D[(D$ID == "FRA-0964" & D$DATE == "2009-10-10"), ]$DATE <- "2008-10-10"
 D[(D$ID == "IRE-3035" & D$DATE == "2014-09-25"), ]$DATE <- "2015-09-25"
@@ -87,17 +85,15 @@ D[D$ID == "BEL-0596" & D$TIME == 0, ]$TOTAL <- 42
 D[(D$ID == "BEL-0353" & D$DATE == "2009-05-14"), ]
 
 ## BEL-0350 final 3 items on respiratory - could be zeros not 4s?
-D[(D$ID == "BEL-0350" & D$DATE == "2016-02-25"), ]
+D[(D$ID == "BEL-0350" & D$DATE == "2016-02-25"), ] # cannot find this patient in the data
 
 D[(D$ID == "BEL-0535" & D$DATE == "2013-11-29"), ]$DATE <- "2012-11-29"
 
 ### Not sure? this person going up and down
-D[(D$ID == "BEL-1013" & D$DATE == "2015-04-21"), ]$DATE <- 
+D[(D$ID == "BEL-1013" & D$DATE == "2015-04-21"), ]$DATE 
   
-
-D[(D$ID == "BEL-1098" & D$DATE == "2018-01-22"), ]$DATE <- "2019-01-22"
+#D[(D$ID == "BEL-1098" & D$DATE == "2018-01-22"), ]$DATE <- "2019-01-22"
 D[(D$ID == "BEL-1447" & D$DATE == "2021-04-15"), ]$DATE <- "2020-04-15"
-
 
 
 D[(D$ID == "SHE-0094" & D$DATE == "2016-10-05"), ]$I12 <- 4
@@ -113,7 +109,7 @@ D[(D$ID == "SHE-0508" & D$DATE == "2014-10-08"), ]$DATE <- "2015-10-08"
 D[(D$ID == "SHE-0589" & D$DATE == ""), ]
 
 ## possibly just missing values for respiratory assessment
-D[(D$ID == "SHE-0867" & D$DATE == ""), ]
+D[(D$ID == "SHE-0867"), ] 
 
 #. Visual check data
 ggplot (D[D$TIME < 13.5, ], aes (TIME, TOTAL, by = ID)) + geom_line (alpha = .1)
@@ -155,7 +151,7 @@ D$TIME <- unlist (by (D, D$ID, function (d){
 
 #. Probably mistake in year
 D[D$DIFF > 5 & D$TIME > 10 & D$TIME < 14, ]$TIME <- abs (D[D$DIFF > 5 & D$TIME > 10 & D$TIME < 14, ]$TIME - 12)
-D <- D[!D$TIME > 120, ]
+D <- D[!D$TIME > 120, ] 
 
 #. Cleaned data:
 ggplot (D[D$TIME < 13.5, ], aes (TIME, TOTAL, by = ID)) + geom_line (alpha = .1)
@@ -166,6 +162,32 @@ table (d$Site)
 write.xlsx (d, file = "~/SurfDrive/data.xlsx")
 
 D[D$ID == "BEL-0353", ]
+
+
+## Addition Daphne
+# where D$DIFF > 9
+D[(D$ID == 'NLD-0592' & D$AGE == '44.11'), ] <- NA
+D[D$ID == 'NLD-0327', ] <- NA 
+D$AGE <- ifelse(D$ID == 'NLD-0979' & D$AGE == '73.54', '74.18', 
+                ifelse(D$ID == 'NLD-0979' & D$AGE == '74.18', '73.54', D$AGE))
+D$AGE <- ifelse(D$ID == 'NLD-1073' & D$AGE == '76.47', '77.11', 
+                ifelse(D$ID == 'NLD-1073' & D$AGE == '77.11', '76.47', D$AGE))
+D$AGE <- ifelse(D$ID == 'NLD-1556' & D$AGE == '59.77', '60.25', 
+                ifelse(D$ID == 'NLD-1556' & D$AGE == '60.25', '59.77', D$AGE))
+D[(D$ID == 'NLD-1814' & D$AGE == '54.91'), ] <- NA 
+D$AGE <- ifelse(D$ID == 'NLD-1822' & D$AGE == '55.07', '55.54',
+                ifelse(D$ID == 'NLD-1822' & D$AGE == '55.54', '55.07', D$AGE))
+D[(D$ID == 'NLD-1890' & D$AGE == '62.67'), ] <- NA 
+D[(D$ID == 'NLD-2022' & D$AGE == '57.59'), ] <- NA
+D[(D$ID == 'NLD-2097' & D$AGE == '47.78'), ] <- NA
+D[(D$ID == 'NLD-2188' & D$AGE == '52.71'), ]$AGE <- '51.71'
+D$AGE <- ifelse(D$ID == 'NLD-2275' & D$AGE == '70.34', '70.58', 
+                ifelse(D$ID == 'NLD-2275' & D$AGE == '70.58', '70.34', D$AGE))
+D[(D$ID == 'NLD-2316' & D$AGE == '72.45'), ] <- NA
+D[(D$ID == 'NLD-2349' & D$AGE == '77.4'), ]$AGE <- '76.4'
+D[(D$ID == 'NLD-2366' & D$AGE == '69.61'), ] <- NA
+D$AGE <- ifelse(D$ID == 'NLD-2383' & D$AGE == '63.49', '64.52',
+                ifelse(D$ID == 'NLD-2383' & D$AGE == '64.52', '63.49', D$AGE))
 
 
 
