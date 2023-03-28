@@ -111,11 +111,110 @@ D[(D$ID == "SHE-0589" & D$DATE == ""), ]
 ## possibly just missing values for respiratory assessment
 D[(D$ID == "SHE-0867"), ] 
 
+## Addition Daphne
+D <- D[!(D$ID == 'IRE-2352' & D$DATE == '2002-09-25'), ]
+
+D <- D[!(D$ID == 'NLD-0592' & D$AGE == '44.11'), ]
+D <- D[!D$ID == 'NLD-0327', ] 
+D[(D$ID == 'NLD-0979' & D$AGE == '74.18'), ]$AGE <- 73.18
+D[(D$ID == 'NLD-1073' & D$AGE == '77.11'), ]$AGE <- 76.11
+D[(D$ID == 'NLD-1556' & D$AGE == '59.77'), ]$AGE <- 60.77
+D <- D[!(D$ID == 'NLD-1690' & D$AGE == '47.81'), ] 
+D <- D[!(D$ID == 'NLD-1814' & D$AGE == '54.91'), ] 
+D <- D[!(D$ID == 'NLD-1822' & D$AGE == '55.07'), ]
+D <- D[!(D$ID == 'NLD-1890' & D$AGE == '62.67'), ] 
+D[(D$ID == 'NLD-1999' & D$AGE == '72.72'), ]$AGE <- 71.72
+D <- D[!(D$ID == 'NLD-2022' & D$AGE == '57.59'), ] 
+D <- D[!(D$ID == 'NLD-2097' & D$AGE == '47.78'), ] 
+D[(D$ID == 'NLD-2188' & D$AGE == '52.71'), ]$AGE <- 51.71
+D <- D[!D$ID == 'NLD-2208',]
+D[(D$ID == 'NLD-2275' & D$AGE == '70.34'), ]$AGE <- 71.34
+D <- D[!(D$ID == 'NLD-2316' & D$AGE == '72.45'), ] 
+D[(D$ID == 'NLD-2349' & D$AGE == '77.4'), ]$AGE <- 76.4
+D <- D[!(D$ID == 'NLD-2366' & D$AGE == '69.61'), ] 
+D <- D[!D$ID == 'NLD-2383', ]
+D <- D[!D$ID == 'NLD-2403', ]
+D <- D[!(D$ID == 'NLD-2473' & D$AGE == '64.66'), ]
+D <- D[!(D$ID == 'NLD-2540' & D$AGE == '52.85'), ]
+D <- D[!(D$ID == 'NLD-2682' & (D$AGE == '58.90' |  D$AGE == '59.31' | D$AGE == '59.04')), ] 
+D <- D[!(D$ID == 'NLD-2731' & D$AGE == '76'), ]
+D[(D$ID == 'NLD-2759' & D$AGE == '47.29'), ]$TOTAL <- 43
+D <- D[!(D$ID == 'NLD-2765' & D$AGE == '74.25'), ] 
+D <- D[!(D$ID == 'NLD-2786' & D$TOTAL == '43'), ] 
+D <- D[!(D$ID == 'NLD-2798' & (D$AGE == '69.32' | D$AGE == '69.3' | D$AGE == '69.23')), ]
+D[(D$ID == 'NLD-2807' & D$AGE == '67.59'), ]$AGE <- 68.59
+D <- D[!(D$ID == 'NLD-2828' & D$AGE == '72.23'), ]
+D[(D$ID == 'NLD-2847' & D$AGE == '68.59'), ]$AGE <- 67.59
+D <- D[!(D$ID == 'NLD-2861' & (D$AGE == '40' | D$AGE == '62.69' | D$AGE == '62.77')), ]
+D <- D[!(D$ID == 'NLD-2864' & (D$AGE == '71.21' | D$AGE == '71.3')), ]
+D <- D[!D$ID == 'NLD-2917', ]
+D[(D$ID == 'NLD-2919' & D$AGE == '54.39'),]$AGE <- 55.39
+D <- D[!(D$ID == 'NLD-2919' & (D$AGE == '55.01' | D$AGE == '55.12' | D$TOTAL == '41')), ] 
+D <- D[!(D$ID == 'NLD-2946' & D$AGE == '72.98'), ]
+D <- D[!(D$ID == 'NLD-2950' & (D$AGE == '58.23' | D$AGE == '58.24')), ]
+D[(D$ID == 'NLD-2955' & D$AGE == '69'), ]$AGE <- 70
+D <- D[!(D$ID == 'NLD-2964' & D$AGE == '46.26'), ]
+
+D[(D$ID == 'SHE-0871' & D$DATE == '2012-05-30'), ]$DATE <- '2009-05-30'
+D <- D[!(D$ID == 'SHE-1220' & (D$DATE == '2019-11-12' | D$DATE == '2020-03-03')), ]
+D <- D[!(D$ID == 'SHE-1313' & D$DATE == '2018-03-13'), ]
+D <- D[!(D$ID == 'SHE-1341' & D$DATE == '2020-01-22'), ]
+
+D <- D[!(D$ID == 'SPA-0008' & D$DATE == '2017-12-01'), ]
+D <- D[!D$ID == 'SPA-0025', ]
+D <- D[!(D$ID == 'SPA-0046' & D$DATE == '2018-12-14'), ]
+D[(D$ID == 'SPA-0068' & D$DATE == '2019-03-22'), ]$DATE <- '2017-03-22'
+D <- D[!(D$ID == 'SPA-0068' & D$DATE == '2017-06-09'), ]
+D[(D$ID == 'SPA-0070' & D$DATE == '2020-03-27'), ]$DATE <- '2017-03-27'
+D[(D$ID == 'SPA-0070' & D$DATE == '2021-05-28'), ]$DATE <- '2017-05-28'
+D <- D[!(D$ID == 'SPA-0073' & (D$DATE == '2018-11-16' | D$DATE == '2019-02-15')), ]
+D <- D[!D$ID == 'SPA-0083', ]
+D[(D$ID == 'SPA-0097' & D$DATE == '2020-10-06'), ]$DATE <- '2021-10-06' 
+D <- D[!(D$ID == 'SPA-0189' & D$DATE == '2016-12-16'), ]
+D[(D$ID == 'SPA-0305' & D$DATE == '2019-03-22'), ]$DATE <- '2017-03-22'
+D <- D[!(D$ID == 'SPA-0361' & D$DATE == '2019-06-18'), ]
+D <- D[!(D$ID == 'SPA-0391' & D$DATE == '2019-02-15'), ]
+D <- D[!(D$ID == 'SPA-0418' & D$DATE == '2018-04-27'), ]
+D <- D[!(D$ID == 'SPA-0466' & D$DATE == '2022-01-18'), ]
+D[(D$ID == 'SPA-0480' & D$DATE == '2018-12-14'), ]$DATE <- '2017-12-14'
+D[(D$ID == 'SPA-0488' & D$DATE == '2019-02-15'), ]$DATE <- '2018-02-15'
+D[(D$ID == 'SPA-0673' & D$DATE == '2020-04-23'), ]$DATE <- '2019-04-23'
+D[(D$ID == 'SPA-0698' & D$DATE == '2020-10-30'), ]$DATE <- '2019-10-30'
+D[(D$ID == 'SPA-0762' & D$DATE == '2021-10-19'), ]$DATE <- '2020-10-19 '
+
+D <- D[!(D$ID == 'SWE-0114' & D$I1 == 'Missing'), ]
+D <- D[!(D$ID == 'SWE-0243' & D$I1 == 'Missing'), ]
+D <- D[!(D$ID == 'SWE-0263' & D$I1 == 'Missing'), ]
+D <- D[!(D$ID == 'SWE-0270' & D$I1 == 'Missing'), ]
+D <- D[!(D$ID == 'SWE-0283' & D$I1 == 'Missing'), ]
+D <- D[!(D$ID == 'SWE-0331' & D$I1 == 'Missing'), ]
+D <- D[!(D$ID == 'SWE-0355' & D$I1 == 'Missing'), ]
+D <- D[!(D$ID == 'SWE-0270'), ]
+
+
+
 #. Visual check data
-ggplot (D[D$TIME < 13.5, ], aes (TIME, TOTAL, by = ID)) + geom_line (alpha = .1)
+ggplot (D[D$TIME < 13.5, ], aes (as.numeric(TIME), as.numeric(TOTAL), by = ID)) + 
+  geom_line (alpha = .1)
+
+#. Redo time:
+D$TIME <- unlist (by (D, D$ID, function (d){
+  
+  # Select or Age or Date to calculate time difference since first measurement
+  if (any (is.na (d$DATE))){ 
+    if (all (is.na (d$DATE))) {
+      (as.numeric(d$AGE) - min (as.numeric(d$AGE))) * 12
+    } else {
+      rep (NA, nrow (d))
+    }
+  } else {
+    as.numeric (d$DATE - min (d$DATE)) / (365.25/12)
+  }
+}))
 
 #. Calculate difference between observations
 D <- D[order (D$ID, D$TIME), ]
+#D <- D[order (D$ID, D$TIME, D$DATE), ]
 D$DIFF <- unlist (by (D, D$ID, function (d){
   c (0, diff (d$TOTAL))
 }))
@@ -134,13 +233,14 @@ D <- D[!(D$TIME == 0 & D$TOTAL == 0), ]
 D <- D[!D$ALL0, ]
 D <- D[!(D$TOTAL == 0 & D$Site == "Bellvitge"), ]
 
+
 #. Redo time:
 D$TIME <- unlist (by (D, D$ID, function (d){
   
   # Select or Age or Date to calculate time difference since first measurement
   if (any (is.na (d$DATE))){ 
     if (all (is.na (d$DATE))) {
-      (d$AGE - min (d$AGE)) * 12
+      (as.numeric(d$AGE) - min (as.numeric(d$AGE))) * 12
     } else {
       rep (NA, nrow (d))
     }
@@ -148,6 +248,7 @@ D$TIME <- unlist (by (D, D$ID, function (d){
     as.numeric (d$DATE - min (d$DATE)) / (365.25/12)
   }
 }))
+
 
 #. Probably mistake in year
 D[D$DIFF > 5 & D$TIME > 10 & D$TIME < 14, ]$TIME <- abs (D[D$DIFF > 5 & D$TIME > 10 & D$TIME < 14, ]$TIME - 12)
@@ -164,30 +265,6 @@ write.xlsx (d, file = "~/SurfDrive/data.xlsx")
 D[D$ID == "BEL-0353", ]
 
 
-## Addition Daphne
-# where D$DIFF > 9
-D[(D$ID == 'NLD-0592' & D$AGE == '44.11'), ] <- NA
-D[D$ID == 'NLD-0327', ] <- NA 
-D$AGE <- ifelse(D$ID == 'NLD-0979' & D$AGE == '73.54', '74.18', 
-                ifelse(D$ID == 'NLD-0979' & D$AGE == '74.18', '73.54', D$AGE))
-D$AGE <- ifelse(D$ID == 'NLD-1073' & D$AGE == '76.47', '77.11', 
-                ifelse(D$ID == 'NLD-1073' & D$AGE == '77.11', '76.47', D$AGE))
-D$AGE <- ifelse(D$ID == 'NLD-1556' & D$AGE == '59.77', '60.25', 
-                ifelse(D$ID == 'NLD-1556' & D$AGE == '60.25', '59.77', D$AGE))
-D[(D$ID == 'NLD-1814' & D$AGE == '54.91'), ] <- NA 
-D$AGE <- ifelse(D$ID == 'NLD-1822' & D$AGE == '55.07', '55.54',
-                ifelse(D$ID == 'NLD-1822' & D$AGE == '55.54', '55.07', D$AGE))
-D[(D$ID == 'NLD-1890' & D$AGE == '62.67'), ] <- NA 
-D[(D$ID == 'NLD-2022' & D$AGE == '57.59'), ] <- NA
-D[(D$ID == 'NLD-2097' & D$AGE == '47.78'), ] <- NA
-D[(D$ID == 'NLD-2188' & D$AGE == '52.71'), ]$AGE <- '51.71'
-D$AGE <- ifelse(D$ID == 'NLD-2275' & D$AGE == '70.34', '70.58', 
-                ifelse(D$ID == 'NLD-2275' & D$AGE == '70.58', '70.34', D$AGE))
-D[(D$ID == 'NLD-2316' & D$AGE == '72.45'), ] <- NA
-D[(D$ID == 'NLD-2349' & D$AGE == '77.4'), ]$AGE <- '76.4'
-D[(D$ID == 'NLD-2366' & D$AGE == '69.61'), ] <- NA
-D$AGE <- ifelse(D$ID == 'NLD-2383' & D$AGE == '63.49', '64.52',
-                ifelse(D$ID == 'NLD-2383' & D$AGE == '64.52', '63.49', D$AGE))
 
 
 
