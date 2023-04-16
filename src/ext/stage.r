@@ -5,26 +5,6 @@ library(stringr)
 source("src/ext/alsfrs.r")
 source("src/ext/main.r")
 
-ext_calculate_time_to_stage <- function(data, time, stage, values) {
-    time_col <- as_label(enquo(time))
-    stage_col <- as_label(enquo(stage))
-    time_to_stage_col <- str_glue("time_to_{stage_col}_")
-
-    tibble(id = unique(data$id)) %>%
-        cross_join(tibble({{ stage }} := values)) %>%
-        bind_rows(data %>% select(id, {{ time }}, {{ stage }})) %>%
-        slice_min({{ time }}, by = c(id, {{ stage }}), n = 1, with_ties = FALSE) %>%
-        group_by(id) %>%
-        arrange({{ stage }}, .by_group = TRUE) %>%
-        fill({{ time }}, .direction = "up") %>%
-        ungroup() %>%
-        pivot_wider(
-            names_from = stage_col,
-            names_prefix = time_to_stage_col,
-            values_from = time_col
-        )
-}
-
 ext_mitos <- ext_alsfrs %>%
     mutate(mitos = {
         walking_selfcare <- q8_walking <= 1 | q6_dressing_and_hygiene <= 1
@@ -70,32 +50,3 @@ ext_kings <- ext_alsfrs %>%
     ) %>%
     select(id, time_from_baseline, kings) %>%
     drop_na()
-
-ext_baseline <- ext_alsfrs %>%
-    filter(time_from_baseline == 0) %>%
-    group_by(id) %>%
-    slice_head(n = 1) %>%
-    ungroup() %>%
-    left_join(ext_main, by = "id") %>%
-    transmute(id,
-        time_from_diagnosis = coalesce(
-            (date_of_assessment - date_of_diagnosis) / dmonths(1),
-            (age_at_assessment - age_at_diagnosis) / (365.25 / 12)
-        ),
-        time_from_onset = coalesce(
-            (date_of_assessment - date_of_onset) / dmonths(1),
-            (age_at_assessment - age_at_onset) * (365.25 / 12)
-        )
-    )
-
-ext_time_to_mitos <- ext_mitos %>%
-    ext_calculate_time_to_stage(
-        time = time_from_baseline,
-        stage = mitos, values = 0:4
-    )
-
-ext_time_to_kings <- ext_kings %>%
-    ext_calculate_time_to_stage(
-        time = time_from_baseline,
-        stage = kings, values = 0:4
-    )

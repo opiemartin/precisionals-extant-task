@@ -199,3 +199,17 @@ ext_alsfrs <- suppressWarnings(ext_load(
     filter(!is.na(date_of_assessment) | !is.na(age_at_assessment)) %>%
     ext_alsfrs_clean() %>%
     ext_alsfrs_calculate_assessment_times()
+
+ext_baseline <- ext_alsfrs %>%
+    filter(time_from_baseline == 0) %>%
+    group_by(id) %>%
+    slice_head(n = 1) %>%
+    ungroup() %>%
+    left_join(ext_main, by = "id") %>%
+    transmute(id,
+        date_of_baseline = date_of_assessment,
+        age_at_baseline = coalesce(
+            age_at_assessment,
+            (date_of_baseline - date_of_birth) / dyears(1)
+        )
+    )

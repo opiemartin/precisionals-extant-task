@@ -112,7 +112,9 @@ ext_main <- ext_load(
         age_at_23h_niv = coalesce(age_at_23h_niv, calculated_age_from_date_of_23h_niv),
         age_at_niv = coalesce(age_at_niv, calculated_age_from_date_of_niv),
         age_at_tracheostomy = coalesce(age_at_tracheostomy, calculated_age_from_date_of_tracheostomy),
-        age_at_transfer = coalesce(age_at_transfer, calculated_age_from_date_of_transfer),
+        age_at_transfer = if_else(vital_status == "Alive", coalesce(
+            age_at_transfer, calculated_age_from_date_of_transfer
+        ), NA_real_),
         age_at_last_follow_up = coalesce(
             age_at_last_follow_up,
             calculated_age_from_date_of_last_follow_up
@@ -161,24 +163,6 @@ ext_main <- ext_load(
             "Cognitive/Behavioural and Spinal",
             "Cognitive impairment",
             "FTD"
-        ),
-        proximal_onset = site_of_onset %in% c(
-            "Flail-Arm", "Flail-Leg",
-            "Membre supérieur proximal D",
-            "Membre supérieur proximal G",
-            "Membre supérieur proximal Bilat",
-            "Membre inférieur proximal D",
-            "Membre inférieur proximal G",
-            "Membre inférieur proximal Bilat",
-            "Neck", "Trunk", "trunk"
-        ),
-        distal_onset = site_of_onset %in% c(
-            "Membre supérieur distal D",
-            "Membre supérieur distal G",
-            "Membre supérieur distal Bilat",
-            "Membre inférieur distal D",
-            "Membre inférieur distal G",
-            "Membre inférieur distal Bilat"
         ),
         side_of_onset = case_when(
             side_of_onset == "Right" ~ "R",
