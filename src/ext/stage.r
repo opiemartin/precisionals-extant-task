@@ -1,10 +1,10 @@
 library(tibble)
 
-source("src/ext_alsfrs.R")
-source("src/ext_main.R")
+source("src/ext/alsfrs.r")
+source("src/ext/main.r")
 
-ext_mitos <- ext_alsfrs |>
-    left_join(ext_main, by = "id") |>
+ext_mitos <- ext_alsfrs %>%
+    left_join(ext_main, by = "id") %>%
     transmute(
         id = id,
         date_of_assessment = date_of_assessment,
@@ -18,33 +18,33 @@ ext_mitos <- ext_alsfrs |>
             breathing <- q10_dyspnea <= 1 | q12_respiratory_insufficiency <= 2
             walking_selfcare + swallowing + communication + breathing
         }
-    ) |>
+    ) %>%
     drop_na(id, mitos)
 
 time_to_mitos_by_age <-
-    ext_main |>
-    select(id) |>
-    cross_join(tibble(mitos = 0:4)) |>
-    bind_rows(ext_mitos) |>
-    select(-date_of_assessment) |>
+    ext_main %>%
+    select(id) %>%
+    cross_join(tibble(mitos = 0:4)) %>%
+    bind_rows(ext_mitos) %>%
+    select(-date_of_assessment) %>%
     slice_min(
         age_at_assessment,
         by = c(id, mitos),
         n = 1,
         with_ties = FALSE
-    ) |>
-    group_by(id) |>
-    arrange(mitos, .by_group = TRUE) |>
-    fill(age_at_assessment, .direction = "up") |>
-    ungroup() |>
+    ) %>%
+    group_by(id) %>%
+    arrange(mitos, .by_group = TRUE) %>%
+    fill(age_at_assessment, .direction = "up") %>%
+    ungroup() %>%
     pivot_wider(
         names_from = mitos,
         names_prefix = "age_at_mitos_",
         values_from = age_at_assessment
     )
 
-ext_kings <- ext_alsfrs |>
-    left_join(ext_main, by = "id") |>
+ext_kings <- ext_alsfrs %>%
+    left_join(ext_main, by = "id") %>%
     mutate(
         age_at_assessment = coalesce(
             age_at_assessment, (date_of_assessment - date_of_birth) / dyears(1),
@@ -77,25 +77,25 @@ ext_kings <- ext_alsfrs |>
                 bulbar + upper + lower
             }
         ),
-    ) |>
-    select(id, date_of_assessment, age_at_assessment, kings) |>
+    ) %>%
+    select(id, date_of_assessment, age_at_assessment, kings) %>%
     drop_na(id, kings)
 
 time_to_kings_by_age <-
-    ext_main |>
-    select(id) |>
-    cross_join(tibble(kings = 0:4)) |>
-    bind_rows(ext_kings) |>
-    select(-date_of_assessment) |>
+    ext_main %>%
+    select(id) %>%
+    cross_join(tibble(kings = 0:4)) %>%
+    bind_rows(ext_kings) %>%
+    select(-date_of_assessment) %>%
     slice_min(
         age_at_assessment,
         by = c(id, kings),
         n = 1,
         with_ties = FALSE
-    ) |>
-    group_by(id) |>
-    arrange(kings, .by_group = TRUE) |>
-    fill(age_at_assessment, .direction = "up") |>
+    ) %>%
+    group_by(id) %>%
+    arrange(kings, .by_group = TRUE) %>%
+    fill(age_at_assessment, .direction = "up") %>%
     pivot_wider(
         names_from = kings,
         names_prefix = "age_at_kings_",

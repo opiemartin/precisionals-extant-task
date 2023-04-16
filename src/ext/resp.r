@@ -1,4 +1,4 @@
-source("src/ext_common.R")
+source("src/ext/common.r")
 
 ext_resp <- ext_load(
     "P-ALS_Ext_Respiratory_Assessments.xlsx",
@@ -9,5 +9,4 @@ ext_resp <- ext_load(
         "numeric", # Age of Assessment
         rep("numeric", 31) # ...
     )
-) |>
-    ext_normalize_names()
+)

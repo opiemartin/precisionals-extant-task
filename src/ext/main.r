@@ -1,6 +1,6 @@
 library(lubridate)
 
-source("src/ext_common.R")
+source("src/ext/common.r")
 
 ext_main <- ext_load(
     "P-ALS_Ext_Main_Data_File.xlsx",
@@ -69,12 +69,11 @@ ext_main <- ext_load(
         "date", # Edaravone Stop Date
         "text" # Current Working Status
     )
-) |>
-    ext_normalize_names() |>
-    rename_with(\(x) str_replace(x, "non_invasive_venti(la|al)tion$", "niv")) |>
-    rename_with(\(x) str_replace(x, "rilzole", "riluzole")) |>
-    rename_with(\(x) str_replace(x, "_if_alive$", "")) |>
-    rename(age_at_23h_niv = "age_at_gt_23h_niv") |>
+) %>%
+    rename_with(~ str_replace(.x, "non_invasive_venti(la|al)tion$", "niv")) %>%
+    rename_with(~ str_replace(.x, "rilzole", "riluzole")) %>%
+    rename_with(~ str_replace(.x, "_if_alive$", "")) %>%
+    rename(age_at_23h_niv = "age_at_gt_23h_niv") %>%
     mutate(
         across(ends_with("_tested"), ext_parse_boolean),
         across(c(gastrostomy, niv, tracheostomy), ext_parse_boolean),
@@ -93,7 +92,7 @@ ext_main <- ext_load(
             )
         ),
         across(starts_with("date_of_") & -date_of_birth,
-            \(x) (x - date_of_birth) / dyears(1),
+            ~ (.x - date_of_birth) / dyears(1),
             .names = "calculated_age_from_{.col}"
         ),
         calculated_age_from_date_of_transfer = if_else(

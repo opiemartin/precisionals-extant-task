@@ -7,9 +7,9 @@ library(survival)
 library(survminer)
 library(tidyr)
 
-source("src/ext_main.R")
-source("src/ext_stage.R")
-source("src/ext_alsfrs.R")
+source("src/ext/main.r")
+source("src/ext/stage.r")
+source("src/ext/alsfrs.r")
 
 ext_fit_survival_curves <- function(data, origin, events, groups = NULL) {
     res <- list()
@@ -18,7 +18,7 @@ ext_fit_survival_curves <- function(data, origin, events, groups = NULL) {
             key <- str_glue("{e}_from_{o}_overall")
             age_at_event_col <- str_glue("age_at_{e}")
             age_at_origin_col <- str_glue("age_at_{o}")
-            event_data <- data |> mutate(
+            event_data <- data %>% mutate(
                 time = .data[[age_at_event_col]] - .data[[age_at_origin_col]],
                 event = f_eval(events[[e]], data)
             )
@@ -26,7 +26,7 @@ ext_fit_survival_curves <- function(data, origin, events, groups = NULL) {
 
             for (g in groups) {
                 key <- str_glue("{e}_from_{o}_by_{g}")
-                group_data <- event_data |> mutate("{g}" := .data[[g]])
+                group_data <- event_data %>% mutate("{g}" := .data[[g]])
                 formula <- as.formula(str_glue("Surv(time, event) ~ {g}"))
                 res[[key]] <- surv_fit(formula, data = group_data)
             }
@@ -35,9 +35,9 @@ ext_fit_survival_curves <- function(data, origin, events, groups = NULL) {
     res
 }
 
-data <- ext_main |>
-    left_join(time_to_mitos_by_age, by = "id") |>
-    left_join(time_to_kings_by_age, by = "id") |>
+data <- ext_main %>%
+    left_join(time_to_mitos_by_age, by = "id") %>%
+    left_join(time_to_kings_by_age, by = "id") %>%
     mutate(
         gene = case_when(
             c9orf72_status == "Positive" ~ "C9orf72",
