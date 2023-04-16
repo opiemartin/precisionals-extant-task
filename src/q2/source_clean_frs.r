@@ -8,6 +8,7 @@ source("src/q2/source_basics.r") # source local copy to keep track of changes
 
 # . Libraries
 library(dplyr)
+library(openxlsx)
 
 #### 0. Functions ####
 checkFRS <- function(ID) {

@@ -4,6 +4,7 @@ source("src/ext/alsfrs.r")
 source("src/ext/main.r")
 
 ext_mitos <- ext_alsfrs %>%
+    ext_alsfrs_clean() %>%
     left_join(ext_main, by = "id") %>%
     transmute(
         id = id,
@@ -44,6 +45,7 @@ time_to_mitos_by_age <-
     )
 
 ext_kings <- ext_alsfrs %>%
+    ext_alsfrs_clean() %>%
     left_join(ext_main, by = "id") %>%
     mutate(
         age_at_assessment = coalesce(
