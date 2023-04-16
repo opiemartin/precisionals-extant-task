@@ -16,15 +16,8 @@ ext_alsfrs <- suppressWarnings(ext_load(
 )) %>%
     rename_with(~ str_replace(.x, "x(\\d+[abx]?)_", "q\\1_")) %>%
     rename_with(~ str_replace_all(.x, "hygine", "hygiene")) %>%
-    rename(age_at_assessment = "age_of_assessment")
-
-ext_alsfrs_progression_category <- function(x) {
-    case_when(
-        x < 0.8 ~ "SP",
-        x %>% between(0.8, 1.35) ~ "NP",
-        x > 1.35 ~ "FP"
-    )
-}
+    rename(age_at_assessment = "age_of_assessment") %>%
+    filter(!is.na(date_of_assessment) | !is.na(age_at_assessment))
 
 ext_alsfrs_clean <- function(data) {
     data %>%
@@ -175,4 +168,31 @@ ext_alsfrs_clean <- function(data) {
         mutate(age_at_assessment = if_else(id == "NLD-2919" & age_at_assessment == 54.39, 55.39, age_at_assessment)) %>%
         mutate(age_at_assessment = if_else(id == "NLD-2955" & age_at_assessment == 69, 70, age_at_assessment)) %>%
         rows_update(tibble(id = "NLD-2759", age_at_assessment = 47.29, total_score = 43), by = c("id", "age_at_assessment"))
+}
+
+ext_alsfrs_calculate_assessment_times <- function(data) {
+    data %>%
+        group_by(id) %>%
+        mutate(
+            time_from_baseline = case_when(
+                all(!is.na(date_of_assessment)) ~
+                    (date_of_assessment - min(date_of_assessment)) / dmonths(1),
+                all(!is.na(age_at_assessment)) ~
+                    (age_at_assessment - min(age_at_assessment)) * (365.25 / 12),
+                TRUE ~ NA
+            )
+        ) %>%
+        arrange(time_from_baseline, .by_group = TRUE) %>%
+        mutate(
+            time_from_last_assessment = time_from_baseline - lag(time_from_baseline)
+        ) %>%
+        ungroup()
+}
+
+ext_alsfrs_progression_category <- function(x) {
+    case_when(
+        x < 0.8 ~ "SP",
+        x %>% between(0.8, 1.35) ~ "NP",
+        x > 1.35 ~ "FP"
+    )
 }
