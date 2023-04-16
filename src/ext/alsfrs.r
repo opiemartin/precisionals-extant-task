@@ -17,7 +17,9 @@ ext_alsfrs <- suppressWarnings(ext_load(
     rename_with(~ str_replace(.x, "x(\\d+[abx]?)_", "q\\1_")) %>%
     rename_with(~ str_replace_all(.x, "hygine", "hygiene")) %>%
     rename(age_at_assessment = "age_of_assessment") %>%
-    filter(!is.na(date_of_assessment) | !is.na(age_at_assessment))
+    filter(!is.na(date_of_assessment) | !is.na(age_at_assessment)) %>%
+    ext_alsfrs_clean() %>%
+    ext_alsfrs_calculate_assessment_times()
 
 ext_alsfrs_clean <- function(data) {
     data %>%
