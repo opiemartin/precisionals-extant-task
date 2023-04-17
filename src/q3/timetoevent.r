@@ -7,7 +7,7 @@ library(tidyr)
 library(writexl)
 
 source("src/ext/main.r")
-source("src/ext/stage.r")
+source("src/ext/staging.r")
 
 q3_calculate_time_to_stage <- function(data, time, stage, values) {
     stage_col <- as_label(enquo(stage))
