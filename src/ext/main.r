@@ -125,11 +125,9 @@ ext_main <- ext_load(
             "Cognitive/Behavioural and Bulbar",
             "PBP"
         ),
-        cervical_onset = site_of_onset %in% c(
-            "Cervical", "Neck"
-        ),
         spinal_onset = site_of_onset %in% c(
-            "Arms", "Spinal", "Bulbar and Spinal",
+            "Arms", "Cervical",
+            "Spinal", "Bulbar and Spinal",
             "Spinal and Cognitive/Behavioural",
             "Cognitive/Behavioural and Spinal",
             "Thoracic/Respiratory and Spinal",
@@ -145,9 +143,8 @@ ext_main <- ext_load(
             "Membre supérieur proximal G",
             "Membre supérieur proximal Bilat",
             "Membre supérieur proximal D",
-            "Upper limb", "Lower limb",
-            "Flail-Leg", "Flail-Arm",
-            "Hemiplegic"
+            "Neck", "Upper limb", "Lower limb",
+            "Flail-Leg", "Flail-Arm", "Hemiplegic"
         ),
         respiratory_onset = site_of_onset %in% c(
             "Bulbar and Thoracic/Respiratory",
