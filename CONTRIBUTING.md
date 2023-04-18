@@ -25,11 +25,17 @@ git clone https://github.com/<owner>/precisionals-extant-task
 ```
 
 Now you should have a new folder called previsionals-extant-task in your current directory.
-You should now create a new subfolder called /data. Source files will reference data in the /data/current subfolder to allow for data versioning, so you should save your own copy of the data in that folder respecting the original file names.
+You should now create a new subfolder called /data. Source files will by default reference data in this folder, so you should save your own copy of the data in that folder respecting the original file names.
 
 ```sh
 cd precisionals-extant-task
-mkdir -p data/current
+mkdir data
+```
+
+To allow for versioning of the dataset, or if you want to keep your data files elsewhere, you can do so by setting the PALS_EXTANT_DATADIR environment variable to the path containing your files. Please check the documentation for your current OS on how to set environment variables persistently if you want to do so.
+
+```sh
+export PALS_EXTANT_DATADIR="<path>"
 ```
 
 The project makes heavy use of R packages from the so called tidyverse. Assuming you have your own copy of the R environment already installed, you can easily install all the dependencies with the following:
