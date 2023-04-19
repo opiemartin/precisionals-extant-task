@@ -184,3 +184,89 @@ abline(
   v = summary(m)$coefficients[1, 1],
   h = summary(m)$coefficients[2, 1], lty = 3
 )
+
+#### 
+##Data description table ####
+
+source("src/ext/main.R")
+
+alsfrsr_ids <- unique(D$ID)
+
+ext_main_dx_clean <- ext_main %>%
+  mutate(diagnosis_ALS = diagnosis %in% c(
+           "ALS",
+           "ALS plus",
+           "ALS/FTD",
+           "Atypical",
+           "Head drop",
+           "PBP"),
+         diagnosis_PLS = diagnosis %in% c(
+           "PLS",
+           "PLS/ALS"
+         ),
+         diagnosis_PMA = diagnosis %in% c(
+           "PMA"
+         ),
+         diagnosis_UMNpred = diagnosis %in% c(
+           "UMN Predominant ALS",
+           "Suspected PLS"
+         ),
+         diagnosis_LMNpred = diagnosis %in% c(
+           "LMN Predominant ALS",
+           "Flail arm",
+           "Flail leg"
+         ), 
+         diagnosis_not_ALS = diagnosis %in% c(
+           "MMN",
+           "FTD",
+           "Unknown (son of ALS patient)"
+         ),
+         diagnosis_na = is.na(diagnosis)
+  ) 
+
+
+main_summary_alsfrsr <- ext_main_dx_clean %>%
+  mutate(ALSFRSR = case_when(id %in% alsfrsr_ids ~ 1,
+                             TRUE ~ 0 )) %>%
+  filter(ALSFRSR == 1) %>%
+  summarise(n = n(),
+            mean_age_onset = mean(as.numeric(calculated_age_at_onset), na.rm=T),
+            mean_age_diagnosis = mean(as.numeric(calculated_age_at_diagnosis), na.rm=T),
+            female_percent = round((sum(sex=="Female", na.rm=T)/n())*100,1),
+            male_percent = round((sum(sex=="Male", na.rm=T)/n())*100,1),
+            bulbar_onset_percent = round((sum(bulbar_onset==TRUE)/n())*100,1),
+            spinal_onset_percent = round((sum(spinal_onset==TRUE)/n())*100,1),
+            respiratory_onset_percent = round((sum(respiratory_onset==TRUE)/n())*100,1),
+            cognitive_onset_percent = round((sum(cognitive_onset==TRUE)/n())*100,1),
+            na_onset_percent = round((sum(is.na(site_of_onset))/n())*100,1),
+            diagnosis_ALS_percent = round((sum(diagnosis_ALS==TRUE)/n())*100,1),
+            diagnosis_PLS_percent = round((sum(diagnosis_PLS==TRUE)/n())*100,1),
+            diagnosis_PMA_percent = round((sum(diagnosis_PMA==TRUE)/n())*100,1),
+            diagnosis_na_percent = round((sum(diagnosis_na==TRUE)/n())*100,1),
+            mean_disease_duration = mean(age_at_death-age_at_onset, na.rm = T),
+            median_disease_duration = median(age_at_death-age_at_onset, na.rm = T))
+
+main_summary <- ext_main_dx_clean %>%
+    summarise(n = n(),
+            mean_age_onset = mean(as.numeric(calculated_age_at_onset), na.rm=T),
+            mean_age_diagnosis = mean(as.numeric(calculated_age_at_diagnosis), na.rm=T),
+            female_percent = round((sum(sex=="Female", na.rm=T)/n())*100,1),
+            male_percent = round((sum(sex=="Male", na.rm=T)/n())*100,1),
+            bulbar_onset_percent = round((sum(bulbar_onset==TRUE)/n())*100,1),
+            spinal_onset_percent = round((sum(spinal_onset==TRUE)/n())*100,1),
+            respiratory_onset_percent = round((sum(respiratory_onset==TRUE)/n())*100,1),
+            cognitive_onset_percent = round((sum(cognitive_onset==TRUE)/n())*100,1),
+            na_onset_percent = round((sum(is.na(site_of_onset))/n())*100,1),
+            diagnosis_ALS_percent = round((sum(diagnosis_ALS==TRUE)/n())*100,1),
+            diagnosis_PLS_percent = round((sum(diagnosis_PLS==TRUE)/n())*100,1),
+            diagnosis_PMA_percent = round((sum(diagnosis_PMA==TRUE)/n())*100,1),
+            diagnosis_na_percent = round((sum(diagnosis_na==TRUE)/n())*100,1),
+            mean_disease_duration = mean(age_at_death-age_at_onset, na.rm = T),
+            median_disease_duration = median(age_at_death-age_at_onset, na.rm = T))
+
+compare <- main_summary %>%
+  bind_rows(main_summary_alsfrsr) %>%
+  mutate(header = c("main", "alsfrsr")) %>%
+  pivot_longer(-header) %>%
+  pivot_wider(name, names_from="header", values_from = "value") %>%
+  mutate_if(is.numeric, round, 1) 
