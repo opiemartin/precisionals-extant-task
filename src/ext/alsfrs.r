@@ -183,7 +183,8 @@ ext_alsfrs_progression_category <- function(x) {
 }
 
 
-ext_alsfrs <- suppressWarnings(ext_load(
+ext_alsfrs <- suppressWarnings(
+  ext_load_data(
     "P-ALS_Ext_ALSFRS-R.xlsx",
     col_types = c(
         "text", # ID
