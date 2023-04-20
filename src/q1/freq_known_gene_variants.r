@@ -1,6 +1,6 @@
 #### FREQUENCY OF KNOWN GENE VARIANTS####
 
-source("src/rmcf/inital.r")
+source("src/q1/inital.r")
 
 ###tested or not
 summary(ext_main$sod1_test_BOOL)
@@ -196,8 +196,8 @@ ggplot(c9site, aes(x = "", y = number, fill = site)) +
 library(data.table)
 
 #earliest mitos stage
-ext_mitos <- ext_alsfrs |>
-  left_join(ext_main, by = "id") |>
+ext_mitos <- ext_alsfrs %>%
+  left_join(ext_main, by = "id") %>%
   transmute(
     id = id,
     date_of_assessment = date_of_assessment,
@@ -211,7 +211,7 @@ ext_mitos <- ext_alsfrs |>
       breathing <- q10_dyspnea <= 1 | q12_respiratory_insufficiency <= 2
       walking_selfcare + swallowing + communication + breathing
     }
-  ) |>
+  ) %>%
   drop_na(id, mitos)
 
 ext_mitos <- ext_mitos %>%

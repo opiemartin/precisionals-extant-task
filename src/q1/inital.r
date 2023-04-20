@@ -3,7 +3,7 @@ library(tidyverse)
 
 source("src/ext/common.r")
 
-ext_main <- ext_load(
+ext_main <- ext_load_data(
   "P-ALS_Ext_Main_Data_File.xlsx",
   col_types = c(
     "text", # ID
