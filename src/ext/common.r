@@ -21,6 +21,14 @@ ext_normalize_names <- function(xs) {
             str_replace_all("^([^A-Za-z])", "x\\1"))
 }
 
+ext_rows_update <- function(data, t, ...) {
+    rows_update(data, t, ..., unmatched = "ignore")
+}
+
+ext_rows_delete <- function(data, t, ...) {
+    rows_delete(data, t, ..., unmatched = "ignore")
+}
+
 ext_parse_boolean <- function(x) {
     x %>% case_match(
         c("Yes", "yes") ~ TRUE,
