@@ -1,6 +1,6 @@
 #### FREQUENCY OF KNOWN GENE VARIANTS####
 
-source("src/rmcf/inital.r")
+source("src/q1/inital.r")
 
 ###tested or not
 summary(ext_main$sod1_test_BOOL)
