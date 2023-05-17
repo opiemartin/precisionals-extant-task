@@ -40,7 +40,7 @@ export PALS_EXTANT_DATADIR="<path>"
 
 Please check the documentation for your current OS on how to set environment variables permanently if you want to do so.
 
-The project makes heavy use of R packages from the so called tidyverse. Assuming you have your own copy of the R environment already installed, you can easily install all the dependencies with the following:
+The project makes heavy use of R packages from the so called `tidyverse`. Assuming you have your own copy of the R environment already installed, you can easily install all the dependencies with the following:
 
 ```sh
 Rscript -e "install.packages(c('tidyverse', 'writexl'), repos = 'http://cran.us.r-project.org')"
@@ -59,6 +59,6 @@ git checkout -b new-branch
 
 Now you are ready to do all the changes. After you're done, you should commit your changes to your local branch and when you're ready just push your changes to your remote repository (aka your fork). Once you've completed your task, you should create a pull request (PR). You can find instructions on how to do so [here](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request).
 
-**Note**: Please remember to specify "Create a new branch" in the base branch dropdown, and use the format ```qX-feature-xxx``` for it when creating your PR.
+**Note**: Please remember to specify "Create a new branch" in the base branch dropdown (use the format `qX-feature-xxx` for question specific changes, or `ext-feature-xxx` for changes to public files) when creating your PR.
 
 You're done!
