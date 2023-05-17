@@ -182,16 +182,74 @@ summary(c9_pos$spinal_onset)
 
 c9site <- data.frame(
   site = c("Bulbar", "Respiratory", "Cognitive", 'Spinal'),
-  number = c(sum(ext_main$c9orf72_stat_BOOL), 
-             sum(ext_main$fus_status_BOOL),
-             sum(ext_main$tardbp_status_BOOL),
-             sum(ext_main$tardbp_status_BOOL)))
+  number = c(sum(c9_pos$bulbar_onset), 
+             sum(c9_pos$respiratory_onset),
+             sum(c9_pos$cognitive_onset),
+             sum(c9_pos$spinal_onset)))
 
 ggplot(c9site, aes(x = "", y = number, fill = site)) +
   geom_bar(stat = "identity", width = 1) +
   coord_polar("y", start = 0) +
   theme_void() +
-  labs(fill = "Site of onset in C9ORF72")
+  labs(fill = "Site of onset in C9ORF72",
+     title = "C9ORF72")
+
+#sod1
+sod1_pos <- ext_main %>% 
+  filter(sod1_stat_BOOL == TRUE)
+
+sod1_site <- data.frame(
+  site = c("Bulbar", "Respiratory", "Cognitive", 'Spinal'),
+  number = c(sum(sod1_pos$bulbar_onset), 
+             sum(sod1_pos$respiratory_onset),
+             sum(sod1_pos$cognitive_onset),
+             sum(sod1_pos$spinal_onset)))
+
+ggplot(sod1_site, aes(x = "", y = number, fill = site)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  theme_void() +
+  labs(fill = "Site of onset in SOD1",
+       title = "SOD1")
+#fus
+
+fus_pos <- ext_main %>% 
+  filter(fus_status_BOOL == TRUE)
+
+fus_site <- data.frame(
+  site = c("Bulbar", "Respiratory", "Cognitive", 'Spinal'),
+  number = c(sum(fus_pos$bulbar_onset), 
+             sum(fus_pos$respiratory_onset),
+             sum(fus_pos$cognitive_onset),
+             sum(fus_pos$spinal_onset)))
+
+ggplot(fus_site, aes(x = "", y = number, fill = site)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  theme_void() +
+  labs(fill = "Site of onset in FUS",
+       title = "FUS")
+
+#tardbp
+
+tardbp_pos <- ext_main %>% 
+  filter(tardbp_status_BOOL == TRUE)
+
+tardbp_site <- data.frame(
+  site = c("Bulbar", "Respiratory", "Cognitive", 'Spinal'),
+  number = c(sum(tardbp_pos$bulbar_onset), 
+             sum(tardbp_pos$respiratory_onset),
+             sum(tardbp_pos$cognitive_onset),
+             sum(tardbp_pos$spinal_onset)))
+
+ggplot(tardbp_site, aes(x = "", y = number, fill = site)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  theme_void() +
+  labs(fill = "Site of onset in TARDPD",
+       title = "TARDPD")
+
+
 
 library(data.table)
 
