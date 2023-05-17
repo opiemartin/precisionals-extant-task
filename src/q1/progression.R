@@ -28,59 +28,68 @@ alsfrsr_rate <- ext_alsfrs %>%
 gast_stats <- ext_main %>%
   select(id, site, gastrostomy, age_at_onset, age_at_gastrostomy) %>%
   mutate(time_to_gast = age_at_gastrostomy - age_at_onset) %>%
-  filter(time_to_gast>0) %>%
   group_by(site) %>%
-  summarise(number_with_gastrostomy = sum(gastrostomy == TRUE, na.rm=TRUE) ,
+  summarise(n=n(),
+            number_with_gastrostomy = sum(gastrostomy == TRUE, na.rm=TRUE) ,
+            percentage_with_gastrostomy = round((number_with_gastrostomy/n)*100,1),
             number_with_time_to_gastrostomy = sum(gastrostomy == TRUE & !is.na(time_to_gast), na.rm=TRUE),
-            median_time_to_gastrostomy = median(time_to_gast, na.rm=TRUE),
-            iqr_time_to_gastrostomy = IQR(time_to_gast, na.rm=TRUE)
+            percentage_with__time_gastrostomy = round((number_with_time_to_gastrostomy/n)*100,1),
+            median_time_to_gastrostomy = round(median(time_to_gast, na.rm=TRUE),1),
+            iqr_time_to_gastrostomy = round(IQR(time_to_gast, na.rm=TRUE),1)
               )
+
+write.csv(gast_stats, "gast_stats.csv")
 
 gast_hist <- ext_main %>%
   select(id, site, gastrostomy, age_at_onset, age_at_gastrostomy) %>%
   mutate(time_to_gast = age_at_gastrostomy - age_at_onset) %>%
   filter(time_to_gast > 0) %>%
   ggplot(.,) +
-  geom_density(aes(x=time_to_gast, fill=site), alpha=0.6)
+  geom_density(aes(x=time_to_gast, fill=site), alpha=0.6)  +
+  theme_classic()
 
 gast_box <- ext_main %>%
   select(id, site, gastrostomy, age_at_onset, age_at_gastrostomy) %>%
   mutate(time_to_gast = age_at_gastrostomy - age_at_onset) %>%
   filter(time_to_gast > 0) %>%
   ggplot(.,) +
-  geom_boxplot(aes(y=time_to_gast, x=site, fill=site), alpha=0.6)
+  geom_boxplot(aes(y=time_to_gast, x=site, fill=site), alpha=0.6)  +
+  theme_classic()
 
 ##### Time to Gastrostomy by genetic status
 
 gast_genetic_box <- ext_main %>%
   select(id, site, gastrostomy, age_at_onset, age_at_gastrostomy, c9orf72_tested, c9orf72_status, sod1_tested, sod1_status, fus_tested, fus_status, tardbp_status, tardbp_tested) %>%
   mutate(time_to_gast = age_at_gastrostomy - age_at_onset) %>%
-  filter(time_to_gast>0 & (c9orf72_tested == TRUE | sod1_tested == TRUE | fus_tested== TRUE | tardbp_tested == TRUE)) %>%
+  filter(time_to_gast>0) %>%
   pivot_longer(cols = -c(id, site, gastrostomy, age_at_onset, age_at_gastrostomy, time_to_gast), names_to = c("gene", ".value"), names_sep = "_") %>%
   drop_na() %>%
   ggplot(.,) +
-  geom_boxplot(aes(x=gene, y=time_to_gast, col=status))
+  geom_boxplot(aes(x=gene, y=time_to_gast, col=status)) +
+  theme_classic()
 
 gast_genetic_stats <- ext_main %>%
   select(id, site, gastrostomy, age_at_onset, age_at_gastrostomy, c9orf72_tested, c9orf72_status, sod1_tested, sod1_status, fus_tested, fus_status, tardbp_status, tardbp_tested) %>%
   mutate(time_to_gast = age_at_gastrostomy - age_at_onset) %>%
-  filter(time_to_gast>0 & (c9orf72_tested == TRUE | sod1_tested == TRUE | fus_tested== TRUE | tardbp_tested == TRUE)) %>%
+  filter(time_to_gast>0) %>%
   pivot_longer(cols = -c(id, site, gastrostomy, age_at_onset, age_at_gastrostomy, time_to_gast), names_to = c("gene", ".value"), names_sep = "_") %>%
   drop_na() %>%
   group_by(gene, status) %>%
   summarise(n= n(),
-            median(time_to_gast),
-            IQR(time_to_gast))
+            median_time_to_gast = round(median(time_to_gast),1),
+            IQR_time_to_gast = round(IQR(time_to_gast),1))
+
+write.csv(gast_genetic_stats, "gast_genetic_stats.csv")
 
 gast_genetic_mwu <- ext_main %>%
   select(id, site, gastrostomy, age_at_onset, age_at_gastrostomy, c9orf72_tested, c9orf72_status, sod1_tested, sod1_status, fus_tested, fus_status, tardbp_status, tardbp_tested) %>%
   mutate(time_to_gast = age_at_gastrostomy - age_at_onset) %>%
-  filter(time_to_gast>0 & (c9orf72_tested == TRUE | sod1_tested == TRUE | fus_tested== TRUE | tardbp_tested == TRUE) & c9orf72_status != "Intermediate") %>%
+  filter(time_to_gast>0) %>%
   pivot_longer(cols = -c(id, site, gastrostomy, age_at_onset, age_at_gastrostomy, time_to_gast), names_to = c("gene", ".value"), names_sep = "_") %>%
   drop_na() %>%
   group_by(gene) %>%
   summarise(mwu = wilcox.test(time_to_gast ~status)$p.value)
   
-  
+write.csv(gast_genetic_mwu, "gast_genetic_mwu.csv")  
 
   
