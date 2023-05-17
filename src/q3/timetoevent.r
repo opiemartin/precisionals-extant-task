@@ -139,13 +139,31 @@ q3_time_to_events <- ext_main %>%
                 (age_at_walking_support - .age_at_origin) * 12,
                 (date_of_walking_support - .date_of_origin) / dmonths(1)
             ),
-            niv = ~ coalesce(
-                (age_at_niv - .age_at_origin) * 12,
-                (date_of_niv - .date_of_origin) / dmonths(1)
+            niv = ~ pmin(
+                coalesce(
+                    (age_at_niv - .age_at_origin) * 12,
+                    (date_of_niv - .date_of_origin) / dmonths(1)
+                ),
+                coalesce(
+                    (age_at_23h_niv - .age_at_origin) * 12,
+                    (date_of_23h_niv - .date_of_origin) / dmonths(1)
+                ),
+                coalesce(
+                    (age_at_tracheostomy - .age_at_origin) * 12,
+                    (date_of_tracheostomy - .date_of_origin) / dmonths(1)
+                ),
+                na.rm = TRUE
             ),
-            niv_23h = ~ coalesce(
-                (age_at_23h_niv - .age_at_origin) * 12,
-                (date_of_23h_niv - .date_of_origin) / dmonths(1)
+            niv_23h = ~ pmin(
+                coalesce(
+                    (age_at_23h_niv - .age_at_origin) * 12,
+                    (date_of_23h_niv - .date_of_origin) / dmonths(1)
+                ),
+                coalesce(
+                    (age_at_tracheostomy - .age_at_origin) * 12,
+                    (date_of_tracheostomy - .date_of_origin) / dmonths(1)
+                ),
+                na.rm = TRUE
             ),
             tracheostomy = ~ coalesce(
                 (age_at_tracheostomy - .age_at_origin) * 12,
