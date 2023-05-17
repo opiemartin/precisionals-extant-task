@@ -3,7 +3,7 @@ library(lubridate)
 source("src/ext/common.r")
 
 ext_main <- ext_load_data(
-    "P-ALS_Ext_Main_Data_File.xlsx",
+    "P-ALS_Ext_V2_Main_Data_File.xlsx",
     col_types = c(
         "text", # ID
         "text", # Site
@@ -74,6 +74,7 @@ ext_main <- ext_load_data(
     rename_with(~ str_replace(.x, "rilzole", "riluzole")) %>%
     rename_with(~ str_replace(.x, "_if_alive$", "")) %>%
     rename(age_at_23h_niv = "age_at_gt_23h_niv") %>%
+    rows_update(tibble(id = "FRA-0560", date_of_niv = dmy("15/10/2016")), by = "id") %>%
     mutate(
         across(ends_with("_tested"), ext_parse_boolean),
         across(c(gastrostomy, niv, tracheostomy), ext_parse_boolean),

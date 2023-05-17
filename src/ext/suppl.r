@@ -1,8 +1,8 @@
 source("src/ext/common.r")
 
-ext_suppl_data_path <- "P-ALS_Ext_Supplementary_Data.xlsx"
+ext_suppl_data_path <- "P-ALS_Ext_V2_Supplementary_Data.xlsx"
 
-ext_suppl_kcl <- ext_load(
+ext_suppl_kcl <- ext_load_data(
     ext_suppl_data_path,
     sheet = "KCL Respiratory & Gastrostomy"
 ) %>%
@@ -13,12 +13,12 @@ ext_suppl_kcl <- ext_load(
         gastrostomy_age = "agegastrostomy",
     )
 
-ext_suppl_ire_gastrostomy <- ext_load(
+ext_suppl_ire_gastrostomy <- ext_load_data(
     ext_suppl_data_path,
     sheet = "IRE Gastrostomy"
 )
 
-ext_suppl_nld_gastrostomy <- ext_load(
+ext_suppl_nld_gastrostomy <- ext_load_data(
     ext_suppl_data_path,
     sheet = "NLD Gastrostomy"
 ) %>%
@@ -27,7 +27,7 @@ ext_suppl_nld_gastrostomy <- ext_load(
         across(starts_with("age_of_"), as.numeric),
     )
 
-ext_suppl_she_gastrostomy <- ext_load(
+ext_suppl_she_gastrostomy <- ext_load_data(
     ext_suppl_data_path,
     sheet = "SHE Gastrostomy"
 ) %>%
@@ -36,7 +36,7 @@ ext_suppl_she_gastrostomy <- ext_load(
         gastrostomy_type = gastrostomy
     )
 
-ext_suppl_spa_gastrostomy <- ext_load(
+ext_suppl_spa_gastrostomy <- ext_load_data(
     ext_suppl_data_path,
     sheet = "SPA PEG"
 )

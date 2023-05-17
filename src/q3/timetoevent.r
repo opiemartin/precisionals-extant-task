@@ -234,8 +234,7 @@ q3_subgroups <- ext_main %>%
                 (tardbp_status == "Positive")
         )
     ) %>%
-    transmute(
-        id, site, sex,
+    mutate(
         causal_gene = case_when(
             altered_genes > 1 ~ "Multiple",
             c9orf72_status == "Positive" ~ "C9orf72",
@@ -253,6 +252,15 @@ q3_subgroups <- ext_main %>%
             respiratory_onset ~ "Respiratory",
             TRUE ~ "Other"
         )
+    ) %>%
+    select(
+        id, site, sex,
+        c9orf72_status,
+        sod1_status,
+        fus_status,
+        tardbp_status,
+        causal_gene,
+        site_of_onset
     )
 
 q3_data <- q3_subgroups %>%
