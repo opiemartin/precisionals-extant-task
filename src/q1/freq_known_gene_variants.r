@@ -246,9 +246,8 @@ ggplot(tardbp_site, aes(x = "", y = number, fill = site)) +
   geom_bar(stat = "identity", width = 1) +
   coord_polar("y", start = 0) +
   theme_void() +
-  labs(fill = "Site of onset in TARDPD",
-       title = "TARDPD")
-
+  labs(fill = "Site of onset in TARDBP",
+       title = "TARDBP")
 
 
 library(data.table)
