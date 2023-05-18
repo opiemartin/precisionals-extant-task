@@ -7,10 +7,13 @@ library(xfun)
 
 q3_origins <- list(
     "birth" = "birth",
-    "onset" = "onset"
+    "onset" = "onset",
+    "diagnosis" = "diagnosis"
 )
 
 q3_events <- list(
+    "onset" = "onset",
+    "diagnosis" = "diagnosis",
     "walking support" = "walking_support",
     "NIV" = "niv",
     "NIV ≥23h" = "niv_23h",
@@ -62,6 +65,9 @@ for (orig_label in names(q3_origins)) {
         grp_value <- q3_subgroups[[grp_label]]
         for (evt_label in names(q3_events)) {
             evt_value <- q3_events[[evt_label]]
+            if (evt_value == orig_value) next
+            if (evt_value == "onset" && orig_value == "diagnosis") next
+
             xlab <- str_glue("Time from {orig_label}, months")
             title <- str_glue("Time to {evt_label}") %>% q3_str_to_title()
             data <- q3_data %>% filter(origin == orig_value, event == evt_value)

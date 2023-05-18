@@ -135,6 +135,14 @@ q3_time_to_events <- ext_main %>%
     q3_analyze_time_to_event(
         origin = c("birth", "onset", "diagnosis"),
         events = list(
+            onset = ~ coalesce(
+                (age_at_onset - .age_at_origin) * 12,
+                (date_of_onset - .date_of_origin) / dmonths(1)
+            ),
+            diagnosis = ~ coalesce(
+                (age_at_diagnosis - .age_at_origin) * 12,
+                (date_of_diagnosis - .date_of_origin) / dmonths(1)
+            ),
             walking_support = ~ coalesce(
                 (age_at_walking_support - .age_at_origin) * 12,
                 (date_of_walking_support - .date_of_origin) / dmonths(1)
@@ -288,7 +296,10 @@ q3_subgroups <- ext_main %>%
 
 q3_data <- q3_subgroups %>%
     left_join(q3_time_to_events, by = "id") %>%
-    filter(duration >= 0) %>%
+    filter(
+        duration >= 0,
+        !(event == "onset" & origin == "diagnosis")
+    ) %>%
     arrange(origin, event)
 
 output_dir <- "output/q3"
