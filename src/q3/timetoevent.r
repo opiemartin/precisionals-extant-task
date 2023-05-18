@@ -250,9 +250,7 @@ q3_subgroups <- ext_main %>%
                 (sod1_status == "Positive") +
                 (fus_status == "Positive") +
                 (tardbp_status == "Positive")
-        )
-    ) %>%
-    mutate(
+        ),
         causal_gene = case_when(
             altered_genes > 1 ~ "Multiple",
             c9orf72_status == "Positive" ~ "C9orf72",
@@ -269,7 +267,14 @@ q3_subgroups <- ext_main %>%
             cognitive_onset ~ "Cognitive",
             respiratory_onset ~ "Respiratory",
             TRUE ~ "Other"
-        )
+        ),
+        across(ends_with("_status"), \(x) {
+            case_when(
+                x == "Negative" & causal_gene != "Unknown" ~ "Negative (known gene)",
+                x == "Negative" & causal_gene == "Unknown" ~ "Negative (unknown gene)",
+                TRUE ~ x
+            )
+        })
     ) %>%
     select(
         id, site, sex,
