@@ -156,30 +156,19 @@ q3_time_to_events <- ext_main %>%
                     (age_at_23h_niv - .age_at_origin) * 12,
                     (date_of_23h_niv - .date_of_origin) / dmonths(1)
                 ),
-                coalesce(
-                    (age_at_tracheostomy - .age_at_origin) * 12,
-                    (date_of_tracheostomy - .date_of_origin) / dmonths(1)
-                ),
                 na.rm = TRUE
             ),
-            niv_23h = ~ pmin(
-                coalesce(
-                    (age_at_23h_niv - .age_at_origin) * 12,
-                    (date_of_23h_niv - .date_of_origin) / dmonths(1)
-                ),
-                coalesce(
-                    (age_at_tracheostomy - .age_at_origin) * 12,
-                    (date_of_tracheostomy - .date_of_origin) / dmonths(1)
-                ),
-                na.rm = TRUE
-            ),
-            tracheostomy = ~ coalesce(
-                (age_at_tracheostomy - .age_at_origin) * 12,
-                (date_of_tracheostomy - .date_of_origin) / dmonths(1)
+            niv_23h = ~ coalesce(
+                (age_at_23h_niv - .age_at_origin) * 12,
+                (date_of_23h_niv - .date_of_origin) / dmonths(1)
             ),
             gastrostomy = ~ coalesce(
                 (age_at_gastrostomy - .age_at_origin) * 12,
                 (date_of_gastrostomy - .date_of_origin) / dmonths(1),
+            ),
+            tracheostomy = ~ coalesce(
+                (age_at_tracheostomy - .age_at_origin) * 12,
+                (date_of_tracheostomy - .date_of_origin) / dmonths(1)
             ),
             death = ~ coalesce(
                 (age_at_death - .age_at_origin) * 12,
@@ -241,6 +230,16 @@ q3_time_to_events <- ext_main %>%
             )
         ),
         censored_for = list(
+            niv = ~ pmin(
+                (age_at_tracheostomy - .age_at_origin) * 12,
+                (date_of_tracheostomy - .date_of_origin) / dmonths(1),
+                na.rm = TRUE
+            ),
+            niv_23h = ~ pmin(
+                (age_at_tracheostomy - .age_at_origin) * 12,
+                (date_of_tracheostomy - .date_of_origin) / dmonths(1),
+                na.rm = TRUE
+            ),
             death = ~ pmin(
                 (age_at_tracheostomy - .age_at_origin) * 12,
                 (date_of_tracheostomy - .date_of_origin) / dmonths(1),
