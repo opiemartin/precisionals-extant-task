@@ -2,6 +2,8 @@
 
 source("src/ext/main.r")
 library(ggplot2)
+library(ggfortify)
+library(survival)
 
 ## took 20 mins to run this so bear with it or we need to rejig a bit
 ##source("src/ext/alsfrs.r")
@@ -92,4 +94,23 @@ gast_genetic_mwu <- ext_main %>%
   
 write.csv(gast_genetic_mwu, "gast_genetic_mwu.csv")  
 
-  
+### kaplan meier by genetic status
+gast_genetic_km <- ext_main %>%
+  select(id, site, gastrostomy, age_at_onset, age_at_gastrostomy, c9orf72_tested, c9orf72_status, sod1_tested, sod1_status, fus_tested, fus_status, tardbp_status, tardbp_tested) %>%
+  mutate(time_to_gast = age_at_gastrostomy - age_at_onset) %>%
+  filter(time_to_gast>0) %>%
+  pivot_longer(cols = -c(id, site, gastrostomy, age_at_onset, age_at_gastrostomy, time_to_gast), names_to = c("gene", ".value"), names_sep = "_") %>%
+  drop_na() %>%
+  group_by(gene) %>%
+  summarise(fit = list(survfit(Surv(time_to_gast, gastrostomy) ~ status)),
+            log_rank = glance(survdiff(Surv(time_to_gast, gastrostomy) ~ status))$p.value)
+
+c9 <- autoplot(gast_genetic_km$fit[1], main=gast_genetic_km$gene[1]) + stat_pvalue_manual(gast_genetic_km$log_rank[1], label="p") + theme_classic()
+fus <- autoplot(gast_genetic_km$fit[2], main=gast_genetic_km$gene[2])  + theme_classic()
+sod1 <- autoplot(gast_genetic_km$fit[3], main=gast_genetic_km$gene[3])  + theme_classic()
+tardbp <- autoplot(gast_genetic_km$fit[4], main=gast_genetic_km$gene[4])  + theme_classic()
+
+c9 + fus +sod1 + tardbp
+
+write.csv(gast_genetic_km %>% select(gene, log_rank), "gast_genetic_km.csv")
+
