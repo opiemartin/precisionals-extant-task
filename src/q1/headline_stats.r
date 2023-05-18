@@ -68,24 +68,75 @@ dunnTest(new_age_of_onset ~ site,
           data = ext_main,
           method = "bonferroni")
 
-#dif with genes
-ext_main %>% 
-  select()
+#dif with genes?
 
-kruskal.test(new_age_of_onset ~ c9orf72_stat_BOOL, data = ext_main)
-
-
-ext_main <- ext_main %>% 
-  mutate(sex_numeric = if sex == "Male", 1
-         else sex == )
-
-headline_stats <- ext_main %>% 
+headline_stats <- ext_main %>%
   summarise(n = n(),
             spinal = mean(spinal_onset)*100,
             bulbar = mean(bulbar_onset)*100,
             respiratory = mean(respiratory_onset)*100,
             cognitive = mean(cognitive_onset)*100,
-            median_age_of_onset = median(new_age_of_onset),
-            median_age_of_death = median(age_at_death))
-glimpse(ext_main$sex)            
-  
+            median_age_of_onset = median(new_age_of_onset, na.rm = TRUE),
+            IQR_onset = IQR(new_age_of_onset, na.rm = TRUE),
+            median_age_of_death = median(age_at_death, na.rm = TRUE),
+            IQR_death = IQR(age_at_death, na.rm = TRUE))
+
+overall_tested_onset <- ext_main %>% 
+  filter(c9orf72_test_BOOL == T | sod1_test_BOOL ==T | fus_tested_BOOL == T | tardbp_tested_BOOL == T) %>% 
+  summarise(n = n(),
+            spinal = mean(spinal_onset)*100,
+            bulbar = mean(bulbar_onset)*100,
+            respiratory = mean(respiratory_onset)*100,
+            cognitive = mean(cognitive_onset)*100,
+            median_age_of_onset = median(new_age_of_onset, na.rm = TRUE),
+            IQR_onset = IQR(new_age_of_onset, na.rm = TRUE),
+            median_age_of_death = median(age_at_death, na.rm = TRUE),
+            IQR_death = IQR(age_at_death, na.rm = TRUE))
+
+fus_onset <- ext_main %>% 
+  filter(fus_tested_BOOL == T & fus_status_BOOL == F) %>% 
+  summarise(n = n(),
+            spinal = mean(spinal_onset)*100,
+            bulbar = mean(bulbar_onset)*100,
+            respiratory = mean(respiratory_onset)*100,
+            cognitive = mean(cognitive_onset)*100,
+            median_age_of_onset = median(new_age_of_onset, na.rm = TRUE),
+            IQR_onset = IQR(new_age_of_onset, na.rm = TRUE),
+            median_age_of_death = median(age_at_death, na.rm = TRUE),
+            IQR_death = IQR(age_at_death, na.rm = TRUE))
+tardbp_onset <- ext_main %>% 
+  filter(tardbp_tested_BOOL == T & tardbp_status_BOOL == F) %>% 
+  summarise(n = n(),
+            spinal = mean(spinal_onset)*100,
+            bulbar = mean(bulbar_onset)*100,
+            respiratory = mean(respiratory_onset)*100,
+            cognitive = mean(cognitive_onset)*100,
+            median_age_of_onset = median(new_age_of_onset, na.rm = TRUE),
+            IQR_onset = IQR(new_age_of_onset, na.rm = TRUE),
+            median_age_of_death = median(age_at_death, na.rm = TRUE),
+            IQR_death = IQR(age_at_death, na.rm = TRUE))
+
+sod1_onset <- ext_main %>% 
+  filter(sod1_test_BOOL == T & sod1_stat_BOOL == F) %>% 
+  summarise(n = n(),
+            spinal = mean(spinal_onset)*100,
+            bulbar = mean(bulbar_onset)*100,
+            respiratory = mean(respiratory_onset)*100,
+            cognitive = mean(cognitive_onset)*100,
+            median_age_of_onset = median(new_age_of_onset, na.rm = TRUE),
+            IQR_onset = IQR(new_age_of_onset, na.rm = TRUE),
+            median_age_of_death = median(age_at_death, na.rm = TRUE),
+            IQR_death = IQR(age_at_death, na.rm = TRUE))
+
+tested <- ext_main %>% 
+  filter(c9orf72_test_BOOL == T | sod1_test_BOOL ==T | fus_tested_BOOL == T | tardbp_tested_BOOL == T)
+wilcox.test(new_age_of_onset ~ c9orf72_stat_BOOL, data = tested) #yes
+wilcox.test(new_age_of_onset ~ sod1_stat_BOOL, data = tested) #yes
+wilcox.test(new_age_of_onset ~ fus_status_BOOL, data = tested) #yes
+wilcox.test(new_age_of_onset ~ tardbp_status_BOOL, data = tested) #yes
+
+
+
+median(ext_main$new_age_of_onset, na.rm = TRUE)
+IQR(ext_main$new_age_of_onset, na.rm = TRUE)
+
