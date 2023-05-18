@@ -81,7 +81,7 @@ q3_analyze_time_to_event <- function(data, origin, events, duration_for, censore
 q3_time_to_mitos <- ext_mitos %>%
     q3_calculate_time_to_stage(
         time = time_from_baseline,
-        stage = mitos, values = 0:4
+        stage = mitos, values = 0:5
     ) %>%
     left_join(ext_baseline, by = "id") %>%
     mutate(
@@ -101,7 +101,7 @@ q3_time_to_mitos <- ext_mitos %>%
 q3_time_to_kings <- ext_kings %>%
     q3_calculate_time_to_stage(
         time = time_from_baseline,
-        stage = kings, values = 0:4
+        stage = kings, values = 0:5
     ) %>%
     left_join(ext_baseline, by = "id") %>%
     mutate(

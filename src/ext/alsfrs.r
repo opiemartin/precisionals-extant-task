@@ -2,7 +2,7 @@ library(dplyr)
 library(lubridate)
 library(tidyr)
 
-source("src/ext/common.r")
+source("src/ext/main.r")
 
 ext_alsfrs_clean <- function(data) {
     data %>%
@@ -163,7 +163,7 @@ ext_alsfrs_calculate_assessment_times <- function(data) {
                 all(!is.na(date_of_assessment)) ~
                     (date_of_assessment - min(date_of_assessment)) / dmonths(1),
                 all(!is.na(age_at_assessment)) ~
-                    (age_at_assessment - min(age_at_assessment)) * (365.25 / 12),
+                    (age_at_assessment - min(age_at_assessment)) * 12,
                 TRUE ~ NA
             )
         ) %>%

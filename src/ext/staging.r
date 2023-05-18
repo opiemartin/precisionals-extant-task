@@ -2,8 +2,19 @@ library(rlang)
 library(tibble)
 library(stringr)
 
-source("src/ext/alsfrs.r")
 source("src/ext/main.r")
+source("src/ext/alsfrs.r")
+
+ext_staging_deaths <- ext_main %>%
+    filter(vital_status == "Deceased") %>%
+    left_join(ext_baseline, by = "id") %>%
+    transmute(
+        id = id, kings = 5, mitos = 5,
+        time_from_baseline = coalesce(
+            (age_at_death - age_at_baseline) * 12,
+            (date_of_death - date_of_baseline) / dmonths(1)
+        )
+    )
 
 ext_mitos <- ext_alsfrs %>%
     mutate(mitos = {
@@ -13,7 +24,9 @@ ext_mitos <- ext_alsfrs %>%
         breathing <- q10_dyspnea <= 1 | q12_respiratory_insufficiency <= 2
         walking_selfcare + swallowing + communication + breathing
     }) %>%
+    bind_rows(ext_staging_deaths) %>%
     select(id, time_from_baseline, mitos) %>%
+    arrange(id, time_from_baseline) %>%
     drop_na()
 
 ext_kings <- ext_alsfrs %>%
@@ -48,5 +61,7 @@ ext_kings <- ext_alsfrs %>%
             }
         ),
     ) %>%
+    bind_rows(ext_staging_deaths) %>%
     select(id, time_from_baseline, kings) %>%
+    arrange(id, time_from_baseline) %>%
     drop_na()
