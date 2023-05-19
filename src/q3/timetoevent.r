@@ -127,10 +127,21 @@ q3_time_to_walking_support <- ext_alsfrs %>%
         date_of_walking_support = date_of_baseline + dmonths(time_from_baseline)
     )
 
+q3_time_to_respiratory_onset <- ext_alsfrs %>%
+    filter(q10_dyspnea <= 3 | q11_orthopnea <= 3) %>%
+    slice_min(time_from_baseline, by = "id", n = 1, with_ties = FALSE) %>%
+    right_join(ext_baseline, by = "id") %>%
+    transmute(
+        id,
+        age_at_respiratory_onset = age_at_baseline + time_from_baseline / 12,
+        date_of_respiratory_onset = date_of_baseline + dmonths(time_from_baseline)
+    )
+
 q3_time_to_events <- ext_main %>%
     left_join(q3_time_to_kings, by = "id") %>%
     left_join(q3_time_to_mitos, by = "id") %>%
     left_join(q3_time_to_walking_support, by = "id") %>%
+    left_join(q3_time_to_respiratory_onset, by = "id") %>%
     q3_analyze_time_to_event(
         origin = c("birth", "onset", "diagnosis"),
         events = list(
@@ -141,6 +152,10 @@ q3_time_to_events <- ext_main %>%
             diagnosis = ~ coalesce(
                 (age_at_diagnosis - .age_at_origin) * 12,
                 (date_of_diagnosis - .date_of_origin) / dmonths(1)
+            ),
+            respiratory_onset = ~ coalesce(
+                (age_at_respiratory_onset - .age_at_origin) * 12,
+                (date_of_respiratory_onset - .date_of_origin) / dmonths(1)
             ),
             walking_support = ~ coalesce(
                 (age_at_walking_support - .age_at_origin) * 12,

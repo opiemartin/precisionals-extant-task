@@ -43,6 +43,7 @@ q3_events <- list(
     "onset" = "onset",
     "diagnosis" = "diagnosis",
     "walking support" = "walking_support",
+    "respiratory onset" = "respiratory_onset",
     "NIV" = "niv",
     "NIV ≥23h" = "niv_23h",
     "tracheostomy" = "tracheostomy",
