@@ -23,14 +23,25 @@ q3_filter_data <- function(data, event, origin, by) {
     }
 }
 
-q3_str_to_title <- function(s) {
+q3_str_restore_allcaps <- function(s) {
     s %>%
-        str_to_title() %>%
         str_replace_all("Fus", "FUS") %>%
         str_replace_all("Mitos", "MiToS") %>%
         str_replace_all("Niv", "NIV") %>%
         str_replace_all("Sod1", "SOD1") %>%
         str_replace_all("Tardbp", "TARDBP")
+}
+
+q3_str_to_sentence <- function(s) {
+    s %>%
+        str_to_sentence() %>%
+        q3_str_restore_allcaps()
+}
+
+q3_str_to_title <- function(s) {
+    s %>%
+        str_to_title() %>%
+        q3_str_restore_allcaps()
 }
 
 q3_origins <- list(
@@ -99,7 +110,9 @@ for (orig_label in names(q3_origins)) {
                 km_fit <- survfit2(as.formula(
                     str_glue("Surv(duration, status == 'event') ~ {grp_value}")
                 ), data)
-                p <- ggsurvfit(km_fit) + add_pvalue("annotation") + add_legend_title(grp_label)
+                p <- ggsurvfit(km_fit) +
+                    add_pvalue("annotation") +
+                    add_legend_title(q3_str_to_sentence(grp_label))
             }
 
             p +
