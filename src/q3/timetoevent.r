@@ -255,6 +255,7 @@ q3_subgroups <- ext_main %>%
                 (fus_status == "Positive") +
                 (tardbp_status == "Positive")
         ),
+        age_at_onset = cut(calculated_age_at_onset, c(0, 18, 30, 40, 50, 60, 70, 80)),
         causal_gene = case_when(
             altered_genes > 1 ~ "Multiple",
             c9orf72_status == "Positive" ~ "C9orf72",
@@ -282,6 +283,7 @@ q3_subgroups <- ext_main %>%
     ) %>%
     select(
         id, site, sex,
+        age_at_onset,
         c9orf72_status,
         sod1_status,
         fus_status,

@@ -62,6 +62,7 @@ q3_subgroups <- list(
     "overall" = "*overall*",
     "site" = "site",
     "sex" = "sex",
+    "age at onset" = "age_at_onset",
     "C9orf72 status" = "c9orf72_status",
     "SOD1 status" = "sod1_status",
     "TARDBP status" = "tardbp_status",
