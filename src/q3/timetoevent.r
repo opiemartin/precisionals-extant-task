@@ -137,11 +137,44 @@ q3_time_to_respiratory_onset <- ext_alsfrs %>%
         date_of_respiratory_onset = date_of_baseline + dmonths(time_from_baseline)
     )
 
+q3_time_to_niv_by_alsfrs <- ext_alsfrs %>%
+    filter(q12_respiratory_insufficiency <= 3) %>%
+    slice_min(time_from_baseline, by = "id", n = 1, with_ties = FALSE) %>%
+    right_join(ext_baseline, by = "id") %>%
+    transmute(
+        id,
+        age_at_niv_by_alsfrs = age_at_baseline + time_from_baseline / 12,
+        date_of_niv_by_alsfrs = date_of_baseline + dmonths(time_from_baseline)
+    )
+
+q3_time_to_niv_23h_by_alsfrs <- ext_alsfrs %>%
+    filter(q12_respiratory_insufficiency <= 1) %>%
+    slice_min(time_from_baseline, by = "id", n = 1, with_ties = FALSE) %>%
+    right_join(ext_baseline, by = "id") %>%
+    transmute(
+        id,
+        age_at_niv_23h_by_alsfrs = age_at_baseline + time_from_baseline / 12,
+        date_of_niv_23h_by_alsfrs = date_of_baseline + dmonths(time_from_baseline)
+    )
+
+q3_time_to_imv_by_alsfrs <- ext_alsfrs %>%
+    filter(q12_respiratory_insufficiency == 0) %>%
+    slice_min(time_from_baseline, by = "id", n = 1, with_ties = FALSE) %>%
+    right_join(ext_baseline, by = "id") %>%
+    transmute(
+        id,
+        age_at_imv_by_alsfrs = age_at_baseline + time_from_baseline / 12,
+        date_of_imv_by_alsfrs = date_of_baseline + dmonths(time_from_baseline)
+    )
+
 q3_time_to_events <- ext_main %>%
     left_join(q3_time_to_kings, by = "id") %>%
     left_join(q3_time_to_mitos, by = "id") %>%
     left_join(q3_time_to_walking_support, by = "id") %>%
     left_join(q3_time_to_respiratory_onset, by = "id") %>%
+    left_join(q3_time_to_niv_by_alsfrs, by = "id") %>%
+    left_join(q3_time_to_niv_23h_by_alsfrs, by = "id") %>%
+    left_join(q3_time_to_imv_by_alsfrs, by = "id") %>%
     q3_analyze_time_to_event(
         origin = c("birth", "onset", "diagnosis"),
         events = list(
@@ -163,14 +196,29 @@ q3_time_to_events <- ext_main %>%
             ),
             niv = ~ pmin(
                 (age_at_niv - .age_at_origin) * 12,
-                (date_of_niv - .date_of_origin) / dmonths(1),
+                (age_at_niv_by_alsfrs - .age_at_origin) * 12,
                 (age_at_23h_niv - .age_at_origin) * 12,
+                (age_at_niv_23h_by_alsfrs - .age_at_origin) * 12,
+                (age_at_tracheostomy - .age_at_origin) * 12,
+                (age_at_imv_by_alsfrs - .age_at_origin) * 12,
+                (date_of_niv - .date_of_origin) / dmonths(1),
+                (date_of_niv_by_alsfrs - .date_of_origin) / dmonths(1),
                 (date_of_23h_niv - .date_of_origin) / dmonths(1),
+                (date_of_niv_23h_by_alsfrs - .date_of_origin) / dmonths(1),
+                (date_of_tracheostomy - .date_of_origin) / dmonths(1),
+                (date_of_imv_by_alsfrs - .date_of_origin) / dmonths(1),
                 na.rm = TRUE
             ),
-            niv_23h = ~ coalesce(
+            niv_23h = ~ pmin(
                 (age_at_23h_niv - .age_at_origin) * 12,
-                (date_of_23h_niv - .date_of_origin) / dmonths(1)
+                (age_at_niv_23h_by_alsfrs - .age_at_origin) * 12,
+                (age_at_tracheostomy - .age_at_origin) * 12,
+                (age_at_imv_by_alsfrs - .age_at_origin) * 12,
+                (date_of_23h_niv - .date_of_origin) / dmonths(1),
+                (date_of_niv_23h_by_alsfrs - .date_of_origin) / dmonths(1),
+                (date_of_tracheostomy - .date_of_origin) / dmonths(1),
+                (date_of_imv_by_alsfrs - .date_of_origin) / dmonths(1),
+                na.rm = TRUE
             ),
             gastrostomy = ~ coalesce(
                 (age_at_gastrostomy - .age_at_origin) * 12,
@@ -178,7 +226,9 @@ q3_time_to_events <- ext_main %>%
             ),
             tracheostomy = ~ coalesce(
                 (age_at_tracheostomy - .age_at_origin) * 12,
-                (date_of_tracheostomy - .date_of_origin) / dmonths(1)
+                (age_at_imv_by_alsfrs - .age_at_origin) * 12,
+                (date_of_tracheostomy - .date_of_origin) / dmonths(1),
+                (date_of_imv_by_alsfrs - .date_of_origin) / dmonths(1)
             ),
             death = ~ coalesce(
                 (age_at_death - .age_at_origin) * 12,
@@ -240,21 +290,11 @@ q3_time_to_events <- ext_main %>%
             )
         ),
         censored_for = list(
-            niv = ~ pmin(
-                (age_at_tracheostomy - .age_at_origin) * 12,
-                (date_of_tracheostomy - .date_of_origin) / dmonths(1),
-                na.rm = TRUE
-            ),
-            niv_23h = ~ pmin(
-                (age_at_tracheostomy - .age_at_origin) * 12,
-                (date_of_tracheostomy - .date_of_origin) / dmonths(1),
-                na.rm = TRUE
-            ),
             death = ~ pmin(
-                (age_at_23h_niv - .age_at_origin) * 12,
                 (age_at_tracheostomy - .age_at_origin) * 12,
-                (date_of_23h_niv - .date_of_origin) / dmonths(1),
+                (age_at_imv_by_alsfrs - .age_at_origin) * 12,
                 (date_of_tracheostomy - .date_of_origin) / dmonths(1),
+                (date_of_imv_by_alsfrs - .date_of_origin) / dmonths(1),
                 na.rm = TRUE
             )
         )
