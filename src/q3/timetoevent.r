@@ -57,11 +57,10 @@ q3_analyze_time_to_event <- function(data, origin, events, duration_for, censore
                 )
             }
             duration <- pmin(epochs_from_origin, epochs_to_event, epochs_to_loss, na.rm = TRUE)
-            status <- case_match(
-                duration,
-                epochs_to_event ~ "event",
-                epochs_from_origin ~ "loss",
-                epochs_to_loss ~ "censored"
+            status <- case_when(
+                duration == epochs_to_event ~ "event",
+                duration == epochs_from_origin ~ "loss",
+                duration == epochs_to_loss ~ "censored"
             )
             result <- result %>%
                 bind_rows(tibble(
