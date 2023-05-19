@@ -75,9 +75,8 @@ q3_subgroups <- list(
 q3_data_path <- "output/q3/time-to-event.xlsx"
 if (!file.exists(q3_data_path)) {
     source("src/q3/timetoevent.r")
-} else {
-    q3_data <- read_excel(q3_data_path)
 }
+q3_data <- read_excel(q3_data_path)
 
 for (orig_label in names(q3_origins)) {
     orig_value <- q3_origins[[orig_label]]
