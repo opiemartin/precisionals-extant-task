@@ -207,10 +207,16 @@ ext_baseline <- ext_alsfrs %>%
     slice_head(n = 1) %>%
     ungroup() %>%
     left_join(ext_main, by = "id") %>%
-    transmute(id,
+    transmute(
+        id, total_score,
         date_of_baseline = date_of_assessment,
         age_at_baseline = coalesce(
             age_at_assessment,
             (date_of_baseline - date_of_birth) / dyears(1)
-        )
+        ),
+        time_from_onset = coalesce(
+            (age_at_assessment - age_at_onset) * 12,
+            (date_of_assessment - date_of_onset) / dmonths(1)
+        ),
+        delta_fs = (48 - total_score) / time_from_onset
     )
