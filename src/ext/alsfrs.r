@@ -176,9 +176,9 @@ ext_alsfrs_calculate_assessment_times <- function(data) {
 
 ext_alsfrs_progression_category <- function(x) {
     case_when(
-        x < 0.8 ~ "SP",
-        x %>% between(0.8, 1.35) ~ "NP",
-        x > 1.35 ~ "FP"
+        x < 0.68 ~ "SP",
+        x %>% between(0.68, 1.26) ~ "NP",
+        x > 1.26 ~ "FP"
     )
 }
 

@@ -301,6 +301,7 @@ q3_time_to_events <- ext_main %>%
     )
 
 q3_subgroups <- ext_main %>%
+    left_join(ext_baseline, by = "id") %>%
     mutate(
         onset_sites = bulbar_onset + spinal_onset +
             cognitive_onset + respiratory_onset,
@@ -332,7 +333,8 @@ q3_subgroups <- ext_main %>%
             .x == "Negative" & causal_gene != "Unknown" ~ "Negative (known gene)",
             .x == "Negative" & causal_gene == "Unknown" ~ "Negative (unknown gene)",
             TRUE ~ .x
-        ))
+        )),
+        progression_rate = ext_alsfrs_progression_category(delta_fs)
     ) %>%
     select(
         id, site, sex,
@@ -342,7 +344,8 @@ q3_subgroups <- ext_main %>%
         fus_status,
         tardbp_status,
         causal_gene,
-        site_of_onset
+        site_of_onset,
+        progression_rate
     )
 
 q3_data <- q3_subgroups %>%
