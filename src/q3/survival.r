@@ -71,7 +71,7 @@ q3_events <- list(
 )
 
 q3_subgroups <- list(
-    "overall" = "*overall*",
+    "overall" = "@overall",
     "site" = "site",
     "sex" = "sex",
     "progression rate" = "progression_rate",
@@ -102,7 +102,7 @@ for (orig_label in names(q3_origins)) {
             xlab <- str_glue("Time from {orig_label}, months")
             title <- str_glue("Time to {evt_label}") %>% q3_str_to_title()
             data <- q3_filter_data(q3_data, evt_value, orig_value, grp_value)
-            if (grp_value == "*overall*") {
+            if (grp_value == "@overall") {
                 output_name <- str_glue("time-from-{orig_value}-to-{evt_value}")
                 km_fit <- survfit2(Surv(duration, status == "event") ~ 1, data)
                 p <- ggsurvfit(km_fit) + add_quantile()
@@ -120,7 +120,7 @@ for (orig_label in names(q3_origins)) {
                 scale_ggsurvfit() +
                 add_confidence_interval() +
                 labs(title = title, x = xlab)
-            
+
             grp_dir <- file.path("output/q3", grp_value)
             dir.create(grp_dir, showWarnings = FALSE)
             ggsave(file.path(grp_dir, output_name %>% with_ext(".png")))
