@@ -328,13 +328,11 @@ q3_subgroups <- ext_main %>%
             respiratory_onset ~ "Respiratory",
             TRUE ~ "Other"
         ),
-        across(ends_with("_status"), \(x) {
-            case_when(
-                x == "Negative" & causal_gene != "Unknown" ~ "Negative (known gene)",
-                x == "Negative" & causal_gene == "Unknown" ~ "Negative (unknown gene)",
-                TRUE ~ x
-            )
-        })
+        across(ends_with("_status"), ~ case_when(
+            .x == "Negative" & causal_gene != "Unknown" ~ "Negative (known gene)",
+            .x == "Negative" & causal_gene == "Unknown" ~ "Negative (unknown gene)",
+            TRUE ~ .x
+        ))
     ) %>%
     select(
         id, site, sex,

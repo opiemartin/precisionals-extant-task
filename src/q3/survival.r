@@ -119,7 +119,10 @@ for (orig_label in names(q3_origins)) {
                 scale_ggsurvfit() +
                 add_confidence_interval() +
                 labs(title = title, x = xlab)
-            ggsave(file.path("output/q3/", grp_value, output_name %>% with_ext(".png")))
+            
+            grp_dir <- file.path("output/q3", grp_value)
+            dir.create(grp_dir, showWarnings = FALSE)
+            ggsave(file.path(grp_dir, output_name %>% with_ext(".png")))
         }
     }
 }
