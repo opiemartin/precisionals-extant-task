@@ -333,8 +333,7 @@ q3_subgroups <- ext_main %>%
             .x == "Negative" & causal_gene != "Unknown" ~ "Negative (known gene)",
             .x == "Negative" & causal_gene == "Unknown" ~ "Negative (unknown gene)",
             TRUE ~ .x
-        )),
-        progression_rate = ext_alsfrs_progression_category(delta_fs)
+        ))
     ) %>%
     select(
         id, site, sex,

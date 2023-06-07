@@ -14,7 +14,7 @@ q3_filter_data <- function(data, event, origin, by) {
         filter(data, causal_gene != "Multiple")
     } else if (by == "site_of_onset") {
         filter(data, site_of_onset %in% c(
-            "Bulbar", "Cognitive", "Respiratory", "Spinal"
+            "Bulbar", "Respiratory", "Spinal"
         ))
     } else if (by == "sod1_status") {
         filter(data, sod1_status != "Unknown effect")
