@@ -351,7 +351,8 @@ q3_data <- q3_subgroups %>%
     left_join(q3_time_to_events, by = "id") %>%
     filter(
         duration >= 0,
-        site_of_onset != "Cognitive"
+        site_of_onset != "Cognitive",
+        !(event == "onset" & origin != "birth")
     ) %>%
     arrange(origin, event)
 
