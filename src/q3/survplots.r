@@ -4,7 +4,12 @@ library(stringr)
 library(survival)
 library(ggsurvfit)
 library(magrittr)
+library(progress)
 library(xfun)
+
+q3_survplots_output_width <- 7
+q3_survplots_output_height <- 7
+q3_survplots_output_dpi <- 300
 
 q3_filter_data <- function(data, event, origin, by) {
     data %<>%
@@ -90,14 +95,28 @@ if (!file.exists(q3_data_path)) {
 }
 q3_data <- readRDS(q3_data_path)
 
+progress_bar <- progress::progress_bar$new(
+    format = "exporting [:bar] :current/:total (:percent)",
+    total = length(q3_origins) * length(q3_events) * length(q3_subgroups)
+)
+
+progress_bar$tick(0)
 for (orig_label in names(q3_origins)) {
     orig_value <- q3_origins[[orig_label]]
     for (grp_label in names(q3_subgroups)) {
         grp_value <- q3_subgroups[[grp_label]]
         for (evt_label in names(q3_events)) {
             evt_value <- q3_events[[evt_label]]
-            if (evt_value == orig_value) next
-            if (evt_value == "onset" && orig_value == "diagnosis") next
+            skip_plot <- case_when(
+                evt_value == orig_value ~ TRUE,
+                evt_value == "onset" & orig_value != "birth" ~ TRUE,
+                TRUE ~ FALSE
+            )
+
+            if (skip_plot) {
+                progress_bar$tick()
+                next
+            }
 
             xlab <- str_glue("Time from {orig_label}, months")
             title <- str_glue("Time to {evt_label}") %>% q3_str_to_title()
@@ -123,7 +142,14 @@ for (orig_label in names(q3_origins)) {
 
             grp_dir <- file.path("output/q3", grp_value)
             dir.create(grp_dir, showWarnings = FALSE)
-            ggsave(file.path(grp_dir, output_name %>% with_ext(".png")))
+            output_path <- file.path(grp_dir, output_name %>% with_ext(".png"))
+            ggsave(output_path,
+                width = q3_survplots_output_width,
+                height = q3_survplots_output_height,
+                dpi = q3_survplots_output_dpi
+            )
+
+            progress_bar$tick()
         }
     }
 }
