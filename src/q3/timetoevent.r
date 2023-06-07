@@ -5,6 +5,7 @@ library(rlang)
 library(stringr)
 library(tidyr)
 library(writexl)
+library(xfun)
 
 source("src/ext/main.r")
 source("src/ext/staging.r")
@@ -357,6 +358,8 @@ q3_data <- q3_subgroups %>%
     arrange(origin, event)
 
 output_dir <- "output/q3"
-output_path <- file.path(output_dir, "time-to-event.xlsx")
+output_path <- file.path(output_dir, "time-to-event")
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
-q3_data %>% write_xlsx(output_path)
+
+q3_data %>% saveRDS(output_path %>% with_ext(".rds"))
+q3_data %>% write_xlsx(output_path %>% with_ext(".xlsx"))
