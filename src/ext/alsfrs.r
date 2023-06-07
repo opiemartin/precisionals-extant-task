@@ -1,5 +1,6 @@
 library(dplyr)
 library(lubridate)
+library(magrittr)
 library(tidyr)
 
 source("src/ext/main.r")
@@ -155,31 +156,25 @@ ext_alsfrs_clean <- function(data) {
         ext_rows_update(tibble(id = "NLD-2759", age_at_assessment = 47.29, total_score = 43), by = c("id", "age_at_assessment"))
 }
 
-ext_alsfrs_calculate_assessment_times <- function(data) {
+ext_alsfrs_calculate_assessment_times <- function(data, baseline) {
     data %>%
-        group_by(id) %>%
+        left_join(
+            baseline %>% select(id, date_of_baseline, age_at_baseline),
+            by = "id"
+        ) %>%
         mutate(
-            time_from_baseline = case_when(
-                all(!is.na(date_of_assessment)) ~
-                    (date_of_assessment - min(date_of_assessment)) / dmonths(1),
-                all(!is.na(age_at_assessment)) ~
-                    (age_at_assessment - min(age_at_assessment)) * 12,
-                TRUE ~ NA
+            time_from_baseline = coalesce(
+                (date_of_assessment - date_of_baseline) / dmonths(1),
+                (age_at_assessment - age_at_baseline) * 12
             )
         ) %>%
+        select(-date_of_baseline, -age_at_baseline) %>%
+        group_by(id) %>%
         arrange(time_from_baseline, .by_group = TRUE) %>%
+        ungroup() %>%
         mutate(
             time_from_last_assessment = time_from_baseline - lag(time_from_baseline)
-        ) %>%
-        ungroup()
-}
-
-ext_alsfrs_progression_category <- function(x) {
-    case_when(
-        x < 0.68 ~ "SP",
-        x %>% between(0.68, 1.26) ~ "NP",
-        x > 1.26 ~ "FP"
-    )
+        )
 }
 
 ext_alsfrs <- suppressWarnings(
@@ -198,25 +193,41 @@ ext_alsfrs <- suppressWarnings(
     rename_with(~ str_replace_all(.x, "hygine", "hygiene")) %>%
     rename(age_at_assessment = "age_of_assessment") %>%
     filter(!is.na(date_of_assessment) | !is.na(age_at_assessment)) %>%
-    ext_alsfrs_clean() %>%
-    ext_alsfrs_calculate_assessment_times()
+    ext_alsfrs_clean()
 
-ext_baseline <- ext_alsfrs %>%
-    filter(time_from_baseline == 0) %>%
-    group_by(id) %>%
-    slice_head(n = 1) %>%
-    ungroup() %>%
-    left_join(ext_main, by = "id") %>%
+ext_baseline <- ext_main %>%
+    select(id, date_of_birth, date_of_onset, age_at_onset) %>%
+    inner_join(ext_alsfrs, by = "id", multiple = "all") %>%
+    mutate(
+        time_from_onset = coalesce(
+            (date_of_assessment - date_of_onset) / dmonths(1),
+            (age_at_assessment - age_at_onset) * 12
+        )
+    ) %>%
+    filter(time_from_onset > 0) %>%
+    slice_min(time_from_onset, by = "id", n = 1, with_ties = FALSE) %>%
     transmute(
-        id, total_score,
+        id, time_from_onset, total_score,
         date_of_baseline = date_of_assessment,
         age_at_baseline = coalesce(
             age_at_assessment,
             (date_of_baseline - date_of_birth) / dyears(1)
         ),
-        time_from_onset = coalesce(
-            (age_at_assessment - age_at_onset) * 12,
-            (date_of_assessment - date_of_onset) / dmonths(1)
-        ),
         delta_fs = (48 - total_score) / time_from_onset
     )
+
+ext_alsfrs %<>% ext_alsfrs_calculate_assessment_times(ext_baseline)
+
+ext_baseline_deltafs_p25 <- quantile(ext_baseline$delta_fs, .25)
+ext_baseline_deltafs_p75 <- quantile(ext_baseline$delta_fs, .75)
+
+ext_baseline %<>% mutate(
+    progression_category = case_when(
+        delta_fs < ext_baseline_deltafs_p25 ~ "Slow",
+        delta_fs %>% between(
+            ext_baseline_deltafs_p25,
+            ext_baseline_deltafs_p75
+        ) ~ "Intermediate",
+        delta_fs > ext_baseline_deltafs_p75 ~ "Fast"
+    )
+)

@@ -345,14 +345,14 @@ q3_subgroups <- ext_main %>%
         tardbp_status,
         causal_gene,
         site_of_onset,
-        progression_rate
+        progression_category
     )
 
 q3_data <- q3_subgroups %>%
     left_join(q3_time_to_events, by = "id") %>%
     filter(
         duration >= 0,
-        !(event == "onset" & origin == "diagnosis")
+        site_of_onset != "Cognitive"
     ) %>%
     arrange(origin, event)
 
