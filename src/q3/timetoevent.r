@@ -119,7 +119,7 @@ q3_time_to_kings <- ext_kings %>%
     rename_with(~ str_replace(.x, "__time_from_baseline_to", ""))
 
 q3_time_to_walking_support <- ext_alsfrs %>%
-    filter(q8_walking <= 2) %>%
+    filter(time_from_baseline >= 0, q8_walking <= 2) %>%
     slice_min(time_from_baseline, by = "id", n = 1, with_ties = FALSE) %>%
     right_join(ext_baseline, by = "id") %>%
     transmute(
@@ -129,7 +129,7 @@ q3_time_to_walking_support <- ext_alsfrs %>%
     )
 
 q3_time_to_respiratory_onset <- ext_alsfrs %>%
-    filter(q10_dyspnea <= 3 | q11_orthopnea <= 3) %>%
+    filter(time_from_baseline >= 0, q10_dyspnea <= 3 | q11_orthopnea <= 3) %>%
     slice_min(time_from_baseline, by = "id", n = 1, with_ties = FALSE) %>%
     right_join(ext_baseline, by = "id") %>%
     transmute(
@@ -139,7 +139,7 @@ q3_time_to_respiratory_onset <- ext_alsfrs %>%
     )
 
 q3_time_to_niv_by_alsfrs <- ext_alsfrs %>%
-    filter(q12_respiratory_insufficiency <= 3) %>%
+    filter(time_from_baseline >= 0, q12_respiratory_insufficiency <= 3) %>%
     slice_min(time_from_baseline, by = "id", n = 1, with_ties = FALSE) %>%
     right_join(ext_baseline, by = "id") %>%
     transmute(
@@ -149,7 +149,7 @@ q3_time_to_niv_by_alsfrs <- ext_alsfrs %>%
     )
 
 q3_time_to_niv_23h_by_alsfrs <- ext_alsfrs %>%
-    filter(q12_respiratory_insufficiency <= 1) %>%
+    filter(time_from_baseline >= 0, q12_respiratory_insufficiency <= 1) %>%
     slice_min(time_from_baseline, by = "id", n = 1, with_ties = FALSE) %>%
     right_join(ext_baseline, by = "id") %>%
     transmute(
@@ -159,7 +159,7 @@ q3_time_to_niv_23h_by_alsfrs <- ext_alsfrs %>%
     )
 
 q3_time_to_imv_by_alsfrs <- ext_alsfrs %>%
-    filter(q12_respiratory_insufficiency == 0) %>%
+    filter(time_from_baseline >= 0, q12_respiratory_insufficiency == 0) %>%
     slice_min(time_from_baseline, by = "id", n = 1, with_ties = FALSE) %>%
     right_join(ext_baseline, by = "id") %>%
     transmute(
@@ -380,7 +380,6 @@ q3_subgroups <- ext_main %>%
 q3_data <- q3_subgroups %>%
     left_join(q3_time_to_events, by = "id") %>%
     filter(
-        duration >= 0,
         site_of_onset != "Cognitive",
         !(event == "onset" & origin != "birth")
     ) %>%
