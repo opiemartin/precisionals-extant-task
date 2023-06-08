@@ -1,17 +1,17 @@
 library(dplyr)
-library(readxl)
-library(stringr)
 library(survival)
 library(ggsurvfit)
 library(magrittr)
 library(progress)
 library(xfun)
 
+source("src/q3/utils.r")
+
 q3_survplots_output_width <- 7
 q3_survplots_output_height <- 7
 q3_survplots_output_dpi <- 300
 
-q3_filter_data <- function(data, event, origin, by) {
+q3_survplots_filter_data <- function(data, event, origin, by) {
     data %<>%
         filter(event == .env$event, origin == .env$origin)
 
@@ -21,32 +21,19 @@ q3_filter_data <- function(data, event, origin, by) {
         filter(data, site_of_onset %in% c(
             "Bulbar", "Respiratory", "Spinal"
         ))
-    } else if (by == "sod1_status") {
-        filter(data, sod1_status != "Unknown effect")
     } else {
         data
     }
 }
 
-q3_str_restore_allcaps <- function(s) {
-    s %>%
-        str_replace_all("Fus", "FUS") %>%
-        str_replace_all("Mitos", "MiToS") %>%
-        str_replace_all("Niv", "NIV") %>%
-        str_replace_all("Sod1", "SOD1") %>%
-        str_replace_all("Tardbp", "TARDBP")
-}
-
-q3_str_to_sentence <- function(s) {
-    s %>%
-        str_to_sentence() %>%
-        q3_str_restore_allcaps()
-}
-
-q3_str_to_title <- function(s) {
-    s %>%
-        str_to_title() %>%
-        q3_str_restore_allcaps()
+q3_survplots_skip_event <- function(event, origin) {
+    if (event == origin) {
+        return(TRUE)
+    }
+    if (event == "onset" && origin != "birth") {
+        return(TRUE)
+    }
+    FALSE
 }
 
 q3_origins <- list(
@@ -65,7 +52,6 @@ q3_events <- list(
     "NIV ≥23h" = "niv_23h",
     "tracheostomy" = "tracheostomy",
     "gastrostomy" = "gastrostomy",
-    "death" = "death",
     "King's 1" = "kings_1",
     "King's 2" = "kings_2",
     "King's 3" = "kings_3",
@@ -75,15 +61,16 @@ q3_events <- list(
     "MiToS 2" = "mitos_2",
     "MiToS 3" = "mitos_3",
     "MiToS 4" = "mitos_4",
-    "MiToS 5" = "mitos_5"
+    "MiToS 5" = "mitos_5",
+    "death" = "death"
 )
 
 q3_subgroups <- list(
     "overall" = "@overall",
     "site" = "site",
     "sex" = "sex",
-    "progression category" = "progression_category",
     "age at onset" = "age_at_onset",
+    "progression category" = "progression_category",
     "C9orf72 status" = "c9orf72_status",
     "SOD1 status" = "sod1_status",
     "TARDBP status" = "tardbp_status",
@@ -103,16 +90,6 @@ progress_bar <- progress::progress_bar$new(
     total = length(q3_origins) * length(q3_events) * length(q3_subgroups)
 )
 
-q3_survplots_skip_event <- function(event, origin) {
-    if (event == origin) {
-        return(TRUE)
-    }
-    if (event == "onset" && origin != "birth") {
-        return(TRUE)
-    }
-    FALSE
-}
-
 progress_bar$tick(0)
 for (orig_label in names(q3_origins)) {
     orig_value <- q3_origins[[orig_label]]
@@ -127,7 +104,7 @@ for (orig_label in names(q3_origins)) {
 
             title <- q3_str_to_title(evt_label)
             xlab <- str_glue("Time from {orig_label}, months")
-            data <- q3_filter_data(q3_data, evt_value, orig_value, grp_value)
+            data <- q3_survplots_filter_data(q3_data, evt_value, orig_value, grp_value)
             if (grp_value == "@overall") {
                 output_name <- str_glue("time-from-{orig_value}-to-{evt_value}")
                 km_fit <- survfit2(Surv(duration, status == "event") ~ 1, data)
