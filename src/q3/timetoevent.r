@@ -195,7 +195,7 @@ q3_time_to_events <- ext_main %>%
                 (age_at_walking_support - .age_at_origin) * 12,
                 (date_of_walking_support - .date_of_origin) / dmonths(1)
             ),
-            niv = ~ pmin(
+            ventilatory_support = ~ pmin(
                 (age_at_niv - .age_at_origin) * 12,
                 (age_at_niv_by_alsfrs - .age_at_origin) * 12,
                 (age_at_23h_niv - .age_at_origin) * 12,
@@ -210,15 +210,22 @@ q3_time_to_events <- ext_main %>%
                 (date_of_imv_by_alsfrs - .date_of_origin) / dmonths(1),
                 na.rm = TRUE
             ),
+            niv = ~ pmin(
+                (age_at_niv - .age_at_origin) * 12,
+                (age_at_niv_by_alsfrs - .age_at_origin) * 12,
+                (age_at_23h_niv - .age_at_origin) * 12,
+                (age_at_niv_23h_by_alsfrs - .age_at_origin) * 12,
+                (date_of_niv - .date_of_origin) / dmonths(1),
+                (date_of_niv_by_alsfrs - .date_of_origin) / dmonths(1),
+                (date_of_23h_niv - .date_of_origin) / dmonths(1),
+                (date_of_niv_23h_by_alsfrs - .date_of_origin) / dmonths(1),
+                na.rm = TRUE
+            ),
             niv_23h = ~ pmin(
                 (age_at_23h_niv - .age_at_origin) * 12,
                 (age_at_niv_23h_by_alsfrs - .age_at_origin) * 12,
-                (age_at_tracheostomy - .age_at_origin) * 12,
-                (age_at_imv_by_alsfrs - .age_at_origin) * 12,
                 (date_of_23h_niv - .date_of_origin) / dmonths(1),
                 (date_of_niv_23h_by_alsfrs - .date_of_origin) / dmonths(1),
-                (date_of_tracheostomy - .date_of_origin) / dmonths(1),
-                (date_of_imv_by_alsfrs - .date_of_origin) / dmonths(1),
                 na.rm = TRUE
             ),
             gastrostomy = ~ coalesce(
@@ -292,6 +299,20 @@ q3_time_to_events <- ext_main %>%
         ),
         censored_for = list(
             death = ~ pmin(
+                (age_at_tracheostomy - .age_at_origin) * 12,
+                (age_at_imv_by_alsfrs - .age_at_origin) * 12,
+                (date_of_tracheostomy - .date_of_origin) / dmonths(1),
+                (date_of_imv_by_alsfrs - .date_of_origin) / dmonths(1),
+                na.rm = TRUE
+            ),
+            niv = ~ pmin(
+                (age_at_tracheostomy - .age_at_origin) * 12,
+                (age_at_imv_by_alsfrs - .age_at_origin) * 12,
+                (date_of_tracheostomy - .date_of_origin) / dmonths(1),
+                (date_of_imv_by_alsfrs - .date_of_origin) / dmonths(1),
+                na.rm = TRUE
+            ),
+            niv_23h = ~ pmin(
                 (age_at_tracheostomy - .age_at_origin) * 12,
                 (age_at_imv_by_alsfrs - .age_at_origin) * 12,
                 (date_of_tracheostomy - .date_of_origin) / dmonths(1),
