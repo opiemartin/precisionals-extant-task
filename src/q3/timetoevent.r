@@ -7,8 +7,10 @@ library(tidyr)
 library(writexl)
 library(xfun)
 
+message("Loading the dataset...", appendLF = FALSE)
 source("src/ext/main.r")
 source("src/ext/staging.r")
+message("\rLoading the dataset... done.")
 
 q3_calculate_time_to_stage <- function(data, time, stage, values) {
     stage_col <- as_label(enquo(stage))
@@ -78,26 +80,7 @@ q3_analyze_time_to_event <- function(data, origin, events, duration_for, censore
     result
 }
 
-q3_time_to_mitos <- ext_mitos %>%
-    q3_calculate_time_to_stage(
-        time = time_from_baseline,
-        stage = mitos, values = 0:5
-    ) %>%
-    left_join(ext_baseline, by = "id") %>%
-    mutate(
-        across(
-            starts_with("time_from_baseline_to_mitos_"),
-            ~ date_of_baseline + dmonths(.x),
-            .names = "date_of__{.col}"
-        ),
-        across(
-            starts_with("time_from_baseline_to_mitos_"),
-            ~ age_at_baseline + .x / 12,
-            .names = "age_at__{.col}"
-        )
-    ) %>%
-    rename_with(~ str_replace(.x, "__time_from_baseline_to", ""))
-
+message("Calculating time to King's...", appendLF = FALSE)
 q3_time_to_kings <- ext_kings %>%
     q3_calculate_time_to_stage(
         time = time_from_baseline,
@@ -117,7 +100,31 @@ q3_time_to_kings <- ext_kings %>%
         )
     ) %>%
     rename_with(~ str_replace(.x, "__time_from_baseline_to", ""))
+message("\rCalculating time to King's... done.")
 
+message("Calculating time to MiToS...", appendLF = FALSE)
+q3_time_to_mitos <- ext_mitos %>%
+    q3_calculate_time_to_stage(
+        time = time_from_baseline,
+        stage = mitos, values = 0:5
+    ) %>%
+    left_join(ext_baseline, by = "id") %>%
+    mutate(
+        across(
+            starts_with("time_from_baseline_to_mitos_"),
+            ~ date_of_baseline + dmonths(.x),
+            .names = "date_of__{.col}"
+        ),
+        across(
+            starts_with("time_from_baseline_to_mitos_"),
+            ~ age_at_baseline + .x / 12,
+            .names = "age_at__{.col}"
+        )
+    ) %>%
+    rename_with(~ str_replace(.x, "__time_from_baseline_to", ""))
+message("\rCalculating time to MiToS... done.")
+
+message("Calculating time to walking support...", appendLF = FALSE)
 q3_time_to_walking_support <- ext_alsfrs %>%
     filter(time_from_baseline >= 0, q8_walking <= 2) %>%
     slice_min(time_from_baseline, by = "id", n = 1, with_ties = FALSE) %>%
@@ -127,7 +134,9 @@ q3_time_to_walking_support <- ext_alsfrs %>%
         age_at_walking_support = age_at_baseline + time_from_baseline / 12,
         date_of_walking_support = date_of_baseline + dmonths(time_from_baseline)
     )
+message("\rCalculating time to walking support... done.")
 
+message("Calculating time to respiratory onset...", appendLF = FALSE)
 q3_time_to_respiratory_onset <- ext_alsfrs %>%
     filter(time_from_baseline >= 0, q10_dyspnea <= 3 | q11_orthopnea <= 3) %>%
     slice_min(time_from_baseline, by = "id", n = 1, with_ties = FALSE) %>%
@@ -137,7 +146,9 @@ q3_time_to_respiratory_onset <- ext_alsfrs %>%
         age_at_respiratory_onset = age_at_baseline + time_from_baseline / 12,
         date_of_respiratory_onset = date_of_baseline + dmonths(time_from_baseline)
     )
+message("\rCalculating time to respiratory onset... done.")
 
+message("Calculating time to NIV by ALSFRS-R...", appendLF = FALSE)
 q3_time_to_niv_by_alsfrs <- ext_alsfrs %>%
     filter(time_from_baseline >= 0, q12_respiratory_insufficiency <= 3) %>%
     slice_min(time_from_baseline, by = "id", n = 1, with_ties = FALSE) %>%
@@ -147,7 +158,9 @@ q3_time_to_niv_by_alsfrs <- ext_alsfrs %>%
         age_at_niv_by_alsfrs = age_at_baseline + time_from_baseline / 12,
         date_of_niv_by_alsfrs = date_of_baseline + dmonths(time_from_baseline)
     )
+message("\rCalculating time to NIV by ALSFRS-R... done.")
 
+message("Calculating time to NIV >23h by ALSFRS-R...", appendLF = FALSE)
 q3_time_to_niv_23h_by_alsfrs <- ext_alsfrs %>%
     filter(time_from_baseline >= 0, q12_respiratory_insufficiency <= 1) %>%
     slice_min(time_from_baseline, by = "id", n = 1, with_ties = FALSE) %>%
@@ -157,7 +170,9 @@ q3_time_to_niv_23h_by_alsfrs <- ext_alsfrs %>%
         age_at_niv_23h_by_alsfrs = age_at_baseline + time_from_baseline / 12,
         date_of_niv_23h_by_alsfrs = date_of_baseline + dmonths(time_from_baseline)
     )
+message("\rCalculating time to NIV >23h by ALSFRS-R... done.")
 
+message("Calculating time to IMV by ALSFRS-R...", appendLF = FALSE)
 q3_time_to_imv_by_alsfrs <- ext_alsfrs %>%
     filter(time_from_baseline >= 0, q12_respiratory_insufficiency == 0) %>%
     slice_min(time_from_baseline, by = "id", n = 1, with_ties = FALSE) %>%
@@ -167,7 +182,9 @@ q3_time_to_imv_by_alsfrs <- ext_alsfrs %>%
         age_at_imv_by_alsfrs = age_at_baseline + time_from_baseline / 12,
         date_of_imv_by_alsfrs = date_of_baseline + dmonths(time_from_baseline)
     )
+message("\rCalculating time to IMV by ALSFRS-R... done.")
 
+message("Calculating time to events...", appendLF = FALSE)
 q3_time_to_events <- ext_main %>%
     left_join(q3_time_to_kings, by = "id") %>%
     left_join(q3_time_to_mitos, by = "id") %>%
@@ -329,6 +346,7 @@ q3_time_to_events <- ext_main %>%
             )
         )
     )
+message("\rCalculating time to events... done.")
 
 q3_subgroups <- ext_main %>%
     left_join(ext_baseline, by = "id") %>%
@@ -341,7 +359,14 @@ q3_subgroups <- ext_main %>%
                 (fus_status == "Positive") +
                 (tardbp_status == "Positive")
         ),
-        age_at_onset = cut(calculated_age_at_onset, c(0, 18, 30, 40, 50, 60, 70, 80)),
+        age_at_onset = cut(calculated_age_at_onset,
+            right = FALSE, ordered_result = TRUE,
+            breaks = c(0, 19, 30, 40, 50, 60, 70, 80, +Inf),
+            labels = c(
+                "0-18", "19-29", "30-39", "40-49",
+                "50-59", "60-69", "70-79", "80+"
+            )
+        ),
         causal_gene = case_when(
             altered_genes > 1 ~ "Multiple",
             c9orf72_status == "Positive" ~ "C9orf72",
@@ -385,9 +410,10 @@ q3_data <- q3_subgroups %>%
     ) %>%
     arrange(origin, event)
 
+
+message("Exporting results...", appendLF = FALSE)
 output_dir <- "output/q3"
 output_path <- file.path(output_dir, "time-to-event")
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
-
 q3_data %>% saveRDS(output_path %>% with_ext(".rds"))
-q3_data %>% write_xlsx(output_path %>% with_ext(".xlsx"))
+message("\rExporting results... done.")
