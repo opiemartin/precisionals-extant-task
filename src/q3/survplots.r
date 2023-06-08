@@ -70,10 +70,12 @@ q3_events <- list(
     "King's 2" = "kings_2",
     "King's 3" = "kings_3",
     "King's 4" = "kings_4",
+    "King's 5" = "kings_5",
     "MiToS 1" = "mitos_1",
     "MiToS 2" = "mitos_2",
     "MiToS 3" = "mitos_3",
-    "MiToS 4" = "mitos_4"
+    "MiToS 4" = "mitos_4",
+    "MiToS 5" = "mitos_5"
 )
 
 q3_subgroups <- list(

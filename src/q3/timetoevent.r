@@ -258,6 +258,10 @@ q3_time_to_events <- ext_main %>%
                 (age_at_kings_4 - .age_at_origin) * 12,
                 (date_of_kings_4 - .date_of_origin) / dmonths(1)
             ),
+            kings_5 = ~ coalesce(
+                (age_at_kings_5 - .age_at_origin) * 12,
+                (date_of_kings_5 - .date_of_origin) / dmonths(1)
+            ),
             mitos_1 = ~ coalesce(
                 (age_at_mitos_1 - .age_at_origin) * 12,
                 (date_of_mitos_1 - .date_of_origin) / dmonths(1)
@@ -273,6 +277,10 @@ q3_time_to_events <- ext_main %>%
             mitos_4 = ~ coalesce(
                 (age_at_mitos_4 - .age_at_origin) * 12,
                 (date_of_mitos_4 - .date_of_origin) / dmonths(1)
+            ),
+            mitos_5 = ~ coalesce(
+                (age_at_mitos_5 - .age_at_origin) * 12,
+                (date_of_mitos_5 - .date_of_origin) / dmonths(1)
             )
         ),
         duration_for = list(
