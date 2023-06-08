@@ -100,6 +100,16 @@ progress_bar <- progress::progress_bar$new(
     total = length(q3_origins) * length(q3_events) * length(q3_subgroups)
 )
 
+q3_survplots_skip_event <- function(event, origin) {
+    if (event == origin) {
+        return(TRUE)
+    }
+    if (event == "onset" && origin != "birth") {
+        return(TRUE)
+    }
+    FALSE
+}
+
 progress_bar$tick(0)
 for (orig_label in names(q3_origins)) {
     orig_value <- q3_origins[[orig_label]]
@@ -107,19 +117,13 @@ for (orig_label in names(q3_origins)) {
         grp_value <- q3_subgroups[[grp_label]]
         for (evt_label in names(q3_events)) {
             evt_value <- q3_events[[evt_label]]
-            skip_plot <- case_when(
-                evt_value == orig_value ~ TRUE,
-                evt_value == "onset" & orig_value != "birth" ~ TRUE,
-                TRUE ~ FALSE
-            )
-
-            if (skip_plot) {
+            if (q3_survplots_skip_event(evt_value, orig_value)) {
                 progress_bar$tick()
                 next
             }
 
+            title <- q3_str_to_title(evt_label)
             xlab <- str_glue("Time from {orig_label}, months")
-            title <- str_glue("Time to {evt_label}") %>% q3_str_to_title()
             data <- q3_filter_data(q3_data, evt_value, orig_value, grp_value)
             if (grp_value == "@overall") {
                 output_name <- str_glue("time-from-{orig_value}-to-{evt_value}")
