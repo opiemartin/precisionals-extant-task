@@ -229,6 +229,6 @@ ext_baseline %<>% mutate(
             ext_baseline_deltafs_p25,
             ext_baseline_deltafs_p75
         ) ~ "Intermediate",
-        delta_fs > ext_baseline_deltafs_p75 ~ "Fast"
+        delta_fs >= ext_baseline_deltafs_p75 ~ "Fast"
     )
 )
