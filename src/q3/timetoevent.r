@@ -80,6 +80,16 @@ q3_analyze_time_to_event <- function(data, origin, events, duration_for, censore
     result
 }
 
+q3_is_valid_event_from_origin <- function(event, origin) {
+    case_match(event,
+        origin ~ FALSE,
+        "birth" ~ TRUE,
+        "onset" ~ event != "birth",
+        "diagnosis" ~ !(event %in% c("birth", "onset")),
+        .default = TRUE
+    )
+}
+
 message("Calculating time to King's...", appendLF = FALSE)
 q3_time_to_kings <- ext_kings %>%
     q3_calculate_time_to_stage(
@@ -197,151 +207,151 @@ q3_time_to_events <- ext_main %>%
         origin = c("birth", "onset", "diagnosis"),
         events = list(
             onset = ~ coalesce(
-                (age_at_onset - .age_at_origin) * 12,
-                (date_of_onset - .date_of_origin) / dmonths(1)
+                date_of_onset - .date_of_origin,
+                dyears(age_at_onset - .age_at_origin)
             ),
             diagnosis = ~ coalesce(
-                (age_at_diagnosis - .age_at_origin) * 12,
-                (date_of_diagnosis - .date_of_origin) / dmonths(1)
+                date_of_diagnosis - .date_of_origin,
+                dyears(age_at_diagnosis - .age_at_origin)
             ),
             respiratory_onset = ~ coalesce(
-                (age_at_respiratory_onset - .age_at_origin) * 12,
-                (date_of_respiratory_onset - .date_of_origin) / dmonths(1)
+                date_of_respiratory_onset - .date_of_origin,
+                dyears(age_at_respiratory_onset - .age_at_origin)
             ),
             walking_support = ~ coalesce(
-                (age_at_walking_support - .age_at_origin) * 12,
-                (date_of_walking_support - .date_of_origin) / dmonths(1)
+                date_of_walking_support - .date_of_origin,
+                dyears(age_at_walking_support - .age_at_origin)
             ),
             ventilatory_support = ~ pmin(
-                (age_at_niv - .age_at_origin) * 12,
-                (age_at_niv_by_alsfrs - .age_at_origin) * 12,
-                (age_at_23h_niv - .age_at_origin) * 12,
-                (age_at_niv_23h_by_alsfrs - .age_at_origin) * 12,
-                (age_at_tracheostomy - .age_at_origin) * 12,
-                (age_at_imv_by_alsfrs - .age_at_origin) * 12,
-                (date_of_niv - .date_of_origin) / dmonths(1),
-                (date_of_niv_by_alsfrs - .date_of_origin) / dmonths(1),
-                (date_of_23h_niv - .date_of_origin) / dmonths(1),
-                (date_of_niv_23h_by_alsfrs - .date_of_origin) / dmonths(1),
-                (date_of_tracheostomy - .date_of_origin) / dmonths(1),
-                (date_of_imv_by_alsfrs - .date_of_origin) / dmonths(1),
+                date_of_niv - .date_of_origin,
+                date_of_niv_by_alsfrs - .date_of_origin,
+                date_of_23h_niv - .date_of_origin,
+                date_of_niv_23h_by_alsfrs - .date_of_origin,
+                date_of_tracheostomy - .date_of_origin,
+                date_of_imv_by_alsfrs - .date_of_origin,
+                dyears(age_at_niv - .age_at_origin),
+                dyears(age_at_niv_by_alsfrs - .age_at_origin),
+                dyears(age_at_23h_niv - .age_at_origin),
+                dyears(age_at_niv_23h_by_alsfrs - .age_at_origin),
+                dyears(age_at_tracheostomy - .age_at_origin),
+                dyears(age_at_imv_by_alsfrs - .age_at_origin),
                 na.rm = TRUE
             ),
             niv = ~ pmin(
-                (age_at_niv - .age_at_origin) * 12,
-                (age_at_niv_by_alsfrs - .age_at_origin) * 12,
-                (age_at_23h_niv - .age_at_origin) * 12,
-                (age_at_niv_23h_by_alsfrs - .age_at_origin) * 12,
-                (date_of_niv - .date_of_origin) / dmonths(1),
-                (date_of_niv_by_alsfrs - .date_of_origin) / dmonths(1),
-                (date_of_23h_niv - .date_of_origin) / dmonths(1),
-                (date_of_niv_23h_by_alsfrs - .date_of_origin) / dmonths(1),
+                date_of_niv - .date_of_origin,
+                date_of_niv_by_alsfrs - .date_of_origin,
+                date_of_23h_niv - .date_of_origin,
+                date_of_niv_23h_by_alsfrs - .date_of_origin,
+                dyears(age_at_niv - .age_at_origin),
+                dyears(age_at_niv_by_alsfrs - .age_at_origin),
+                dyears(age_at_23h_niv - .age_at_origin),
+                dyears(age_at_niv_23h_by_alsfrs - .age_at_origin),
                 na.rm = TRUE
             ),
             niv_23h = ~ pmin(
-                (age_at_23h_niv - .age_at_origin) * 12,
-                (age_at_niv_23h_by_alsfrs - .age_at_origin) * 12,
-                (date_of_23h_niv - .date_of_origin) / dmonths(1),
-                (date_of_niv_23h_by_alsfrs - .date_of_origin) / dmonths(1),
+                date_of_23h_niv - .date_of_origin,
+                date_of_niv_23h_by_alsfrs - .date_of_origin,
+                dyears(age_at_23h_niv - .age_at_origin),
+                dyears(age_at_niv_23h_by_alsfrs - .age_at_origin),
                 na.rm = TRUE
             ),
             gastrostomy = ~ coalesce(
-                (age_at_gastrostomy - .age_at_origin) * 12,
-                (date_of_gastrostomy - .date_of_origin) / dmonths(1),
+                date_of_gastrostomy - .date_of_origin,
+                dyears(age_at_gastrostomy - .age_at_origin)
             ),
             tracheostomy = ~ coalesce(
-                (age_at_tracheostomy - .age_at_origin) * 12,
-                (age_at_imv_by_alsfrs - .age_at_origin) * 12,
-                (date_of_tracheostomy - .date_of_origin) / dmonths(1),
-                (date_of_imv_by_alsfrs - .date_of_origin) / dmonths(1)
+                date_of_tracheostomy - .date_of_origin,
+                date_of_imv_by_alsfrs - .date_of_origin,
+                dyears(age_at_tracheostomy - .age_at_origin),
+                dyears(age_at_imv_by_alsfrs - .age_at_origin)
             ),
             death = ~ coalesce(
-                (age_at_death - .age_at_origin) * 12,
-                (date_of_death - date_of_birth) / dmonths(1)
+                date_of_death - date_of_birth,
+                dyears(age_at_death - .age_at_origin)
             ),
             kings_1 = ~ coalesce(
-                (age_at_kings_1 - .age_at_origin) * 12,
-                (date_of_kings_1 - .date_of_origin) / dmonths(1)
+                date_of_kings_1 - .date_of_origin,
+                dyears(age_at_kings_1 - .age_at_origin)
             ),
             kings_2 = ~ coalesce(
-                (age_at_kings_2 - .age_at_origin) * 12,
-                (date_of_kings_2 - .date_of_origin) / dmonths(1)
+                date_of_kings_2 - .date_of_origin,
+                dyears(age_at_kings_2 - .age_at_origin)
             ),
             kings_3 = ~ coalesce(
-                (age_at_kings_3 - .age_at_origin) * 12,
-                (date_of_kings_3 - .date_of_origin) / dmonths(1)
+                date_of_kings_3 - .date_of_origin,
+                dyears(age_at_kings_3 - .age_at_origin)
             ),
             kings_4 = ~ coalesce(
-                (age_at_kings_4 - .age_at_origin) * 12,
-                (date_of_kings_4 - .date_of_origin) / dmonths(1)
+                date_of_kings_4 - .date_of_origin,
+                dyears(age_at_kings_4 - .age_at_origin)
             ),
             kings_5 = ~ coalesce(
-                (age_at_kings_5 - .age_at_origin) * 12,
-                (date_of_kings_5 - .date_of_origin) / dmonths(1)
+                date_of_kings_5 - .date_of_origin,
+                dyears(age_at_kings_5 - .age_at_origin)
             ),
             mitos_1 = ~ coalesce(
-                (age_at_mitos_1 - .age_at_origin) * 12,
-                (date_of_mitos_1 - .date_of_origin) / dmonths(1)
+                date_of_mitos_1 - .date_of_origin,
+                dyears(age_at_mitos_1 - .age_at_origin)
             ),
             mitos_2 = ~ coalesce(
-                (age_at_mitos_2 - .age_at_origin) * 12,
-                (date_of_mitos_2 - .date_of_origin) / dmonths(1)
+                date_of_mitos_2 - .date_of_origin,
+                dyears(age_at_mitos_2 - .age_at_origin)
             ),
             mitos_3 = ~ coalesce(
-                (age_at_mitos_3 - .age_at_origin) * 12,
-                (date_of_mitos_3 - .date_of_origin) / dmonths(1)
+                date_of_mitos_3 - .date_of_origin,
+                dyears(age_at_mitos_3 - .age_at_origin)
             ),
             mitos_4 = ~ coalesce(
-                (age_at_mitos_4 - .age_at_origin) * 12,
-                (date_of_mitos_4 - .date_of_origin) / dmonths(1)
+                date_of_mitos_4 - .date_of_origin,
+                dyears(age_at_mitos_4 - .age_at_origin)
             ),
             mitos_5 = ~ coalesce(
-                (age_at_mitos_5 - .age_at_origin) * 12,
-                (date_of_mitos_5 - .date_of_origin) / dmonths(1)
+                date_of_mitos_5 - .date_of_origin,
+                dyears(age_at_mitos_5 - .age_at_origin)
             )
         ),
         duration_for = list(
             death = ~ pmin(
-                (age_at_transfer - .age_at_origin) * 12,
+                dyears(age_at_transfer - .age_at_origin),
                 if_else(
                     vital_status == "Alive",
-                    (date_of_transfer - .date_of_origin) / dmonths(1),
-                    NA_real_
+                    date_of_transfer - .date_of_origin,
+                    as.duration(NA)
                 ),
                 na.rm = TRUE
             ),
             .otherwise = ~ pmin(
-                (age_at_death - .age_at_origin) * 12,
-                (age_at_transfer - .age_at_origin) * 12,
-                (date_of_death - .date_of_origin) / dmonths(1),
+                dyears(age_at_death - .age_at_origin),
+                dyears(age_at_transfer - .age_at_origin),
+                date_of_death - .date_of_origin,
                 if_else(
                     vital_status == "Alive",
-                    (date_of_transfer - .date_of_origin) / dmonths(1),
-                    NA_real_
+                    date_of_transfer - .date_of_origin,
+                    as.duration(NA)
                 ),
                 na.rm = TRUE
             )
         ),
         censored_for = list(
             death = ~ pmin(
-                (age_at_tracheostomy - .age_at_origin) * 12,
-                (age_at_imv_by_alsfrs - .age_at_origin) * 12,
-                (date_of_tracheostomy - .date_of_origin) / dmonths(1),
-                (date_of_imv_by_alsfrs - .date_of_origin) / dmonths(1),
+                date_of_tracheostomy - .date_of_origin,
+                date_of_imv_by_alsfrs - .date_of_origin,
+                dyears(age_at_tracheostomy - .age_at_origin),
+                dyears(age_at_imv_by_alsfrs - .age_at_origin),
                 na.rm = TRUE
             ),
             niv = ~ pmin(
-                (age_at_tracheostomy - .age_at_origin) * 12,
-                (age_at_imv_by_alsfrs - .age_at_origin) * 12,
-                (date_of_tracheostomy - .date_of_origin) / dmonths(1),
-                (date_of_imv_by_alsfrs - .date_of_origin) / dmonths(1),
+                date_of_tracheostomy - .date_of_origin,
+                date_of_imv_by_alsfrs - .date_of_origin,
+                dyears(age_at_tracheostomy - .age_at_origin),
+                dyears(age_at_imv_by_alsfrs - .age_at_origin),
                 na.rm = TRUE
             ),
             niv_23h = ~ pmin(
-                (age_at_tracheostomy - .age_at_origin) * 12,
-                (age_at_imv_by_alsfrs - .age_at_origin) * 12,
-                (date_of_tracheostomy - .date_of_origin) / dmonths(1),
-                (date_of_imv_by_alsfrs - .date_of_origin) / dmonths(1),
+                date_of_tracheostomy - .date_of_origin,
+                date_of_imv_by_alsfrs - .date_of_origin,
+                dyears(age_at_tracheostomy - .age_at_origin),
+                dyears(age_at_imv_by_alsfrs - .age_at_origin),
                 na.rm = TRUE
             )
         )
@@ -405,11 +415,10 @@ q3_subgroups <- ext_main %>%
 q3_data <- q3_subgroups %>%
     left_join(q3_time_to_events, by = "id") %>%
     filter(
-        site_of_onset != "Cognitive",
-        !(event == "onset" & origin != "birth")
+        q3_is_valid_event_from_origin(event, origin),
+        site_of_onset != "Cognitive"
     ) %>%
     arrange(origin, event)
-
 
 message("Exporting results...", appendLF = FALSE)
 output_dir <- "output/q3"

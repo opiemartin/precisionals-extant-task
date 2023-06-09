@@ -1,8 +1,10 @@
 library(dplyr)
 library(survival)
 library(ggsurvfit)
+library(lubridate)
 library(magrittr)
 library(progress)
+library(rlang)
 library(xfun)
 
 source("src/q3/utils.r")
@@ -40,6 +42,11 @@ q3_origins <- list(
     "birth" = "birth",
     "onset" = "onset",
     "diagnosis" = "diagnosis"
+)
+
+q3_epoch_units <- list(
+    birth = "years",
+    .otherwise = "months"
 )
 
 q3_events <- list(
@@ -93,6 +100,7 @@ progress_bar <- progress::progress_bar$new(
 progress_bar$tick(0)
 for (orig_label in names(q3_origins)) {
     orig_value <- q3_origins[[orig_label]]
+    epoch_unit <- q3_epoch_units[[orig_value]] %||% q3_epoch_units$.otherwise
     for (grp_label in names(q3_subgroups)) {
         grp_value <- q3_subgroups[[grp_label]]
         for (evt_label in names(q3_events)) {
@@ -103,8 +111,10 @@ for (orig_label in names(q3_origins)) {
             }
 
             title <- q3_str_to_title(evt_label)
-            xlab <- str_glue("Time from {orig_label}, months")
+            xlab <- str_glue("Time from {orig_label}, {epoch_unit}")
             data <- q3_survplots_filter_data(q3_data, evt_value, orig_value, grp_value)
+            data$duration <- data$duration / duration(1, epoch_unit)
+
             if (grp_value == "@overall") {
                 output_name <- str_glue("time-from-{orig_value}-to-{evt_value}")
                 km_fit <- survfit2(Surv(duration, status == "event") ~ 1, data)
@@ -132,7 +142,6 @@ for (orig_label in names(q3_origins)) {
                 height = q3_survplots_output_height,
                 dpi = q3_survplots_output_dpi
             )
-
             progress_bar$tick()
         }
     }
