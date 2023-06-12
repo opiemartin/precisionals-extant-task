@@ -83,6 +83,14 @@ ext_main <- ext_load_data(
             c("Man", "Male") ~ "Male",
             c("Woman", "Female") ~ "Female",
         ),
+        c9orf72_status = case_when(
+            c9orf72_status == "Intermediate" ~ "Negative",
+            TRUE ~ c9orf72_status
+        ),
+        sod1_status = case_when(
+            sod1_status == "Unknown effect" ~ NA_character_,
+            TRUE ~ sod1_status
+        ),
         date_of_birth = coalesce(
             date_of_birth,
             make_date(str_extract(year_year_and_month_of_birth, "\\d{4}"), 1, 1),
@@ -172,5 +180,5 @@ ext_main <- ext_load_data(
             str_ends(site_of_onset, " D") ~ "R",
             str_ends(site_of_onset, " G") ~ "L",
             str_ends(site_of_onset, " Bilat") ~ "B"
-        ),
+        )
     )
