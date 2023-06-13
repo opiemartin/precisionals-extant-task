@@ -236,6 +236,7 @@ q3_time_to_events <- ext_main %>%
     left_join(q3_time_to_niv_23h_by_alsfrs, by = "id") %>%
     left_join(q3_time_to_imv_by_alsfrs, by = "id") %>%
     left_join(q3_time_to_last_vc_assessment, by = "id") %>%
+    left_join(q3_time_to_last_alsfrs_assessment, by = "id") %>%
     q3_analyze_time_to_event(
         origin = c("birth", "onset", "diagnosis"),
         events = list(
@@ -352,6 +353,14 @@ q3_time_to_events <- ext_main %>%
             vc_decline = ~ coalesce(
                 date_of_last_vc_assessment - .date_of_origin,
                 dyears(age_at_last_vc_assessment - .age_at_origin)
+            ),
+            walking_support = ~ coalesce(
+                date_of_last_alsfrs_assessment - .date_of_origin,
+                dyears(age_at_last_alsfrs_assessment - .age_at_origin)
+            ),
+            respiratory_onset = ~ coalesce(
+                date_of_last_alsfrs_assessment - .date_of_origin,
+                dyears(age_at_last_alsfrs_assessment - .age_at_origin)
             ),
             death = ~ pmin(
                 dyears(age_at_transfer - .age_at_origin),
