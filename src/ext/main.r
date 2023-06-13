@@ -116,9 +116,9 @@ ext_main <- ext_load_data(
         #    calculated_age_col <- str_glue("calculated_age_from_date_of_{event}")
         #    coalesce(x, .data[[calculated_age_col]])
         # }, .names = "coalesced_{.col}"),
-        age_at_onset = coalesce(calculated_age_at_onset, age_at_onset, calculated_age_from_date_of_onset),
-        age_at_death = coalesce(calculated_age_at_death, age_at_death, calculated_age_from_date_of_death),
-        age_at_diagnosis = coalesce(calculated_age_at_diagnosis, age_at_diagnosis, calculated_age_from_date_of_diagnosis),
+        age_at_onset = coalesce(age_at_onset, calculated_age_at_onset, calculated_age_from_date_of_onset),
+        age_at_death = coalesce(age_at_death, calculated_age_at_death, calculated_age_from_date_of_death),
+        age_at_diagnosis = coalesce(age_at_diagnosis, calculated_age_at_diagnosis, calculated_age_from_date_of_diagnosis),
         age_at_gastrostomy = coalesce(age_at_gastrostomy, calculated_age_from_date_of_gastrostomy),
         age_at_23h_niv = coalesce(age_at_23h_niv, calculated_age_from_date_of_23h_niv),
         age_at_niv = coalesce(age_at_niv, calculated_age_from_date_of_niv),
