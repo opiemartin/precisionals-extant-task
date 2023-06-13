@@ -7,23 +7,10 @@ ext_staging_deaths <- ext_main %>%
     transmute(
         id = id, kings = 5, mitos = 5,
         time_from_baseline = coalesce(
-            (age_at_death - age_at_baseline) * 12,
-            (date_of_death - date_of_baseline) / dmonths(1)
+            date_of_death - date_of_baseline,
+            dyears(age_at_death - age_at_baseline)
         )
     )
-
-ext_mitos <- ext_alsfrs %>%
-    mutate(mitos = {
-        walking_selfcare <- q8_walking <= 1 | q6_dressing_and_hygiene <= 1
-        swallowing <- q3_swallowing <= 1
-        communication <- q1_speech <= 1 | q4_handwriting <= 1
-        breathing <- q10_dyspnea <= 1 | q12_respiratory_insufficiency <= 2
-        walking_selfcare + swallowing + communication + breathing
-    }) %>%
-    bind_rows(ext_staging_deaths) %>%
-    select(id, time_from_baseline, mitos) %>%
-    arrange(id, time_from_baseline) %>%
-    drop_na()
 
 ext_kings <- ext_alsfrs %>%
     left_join(ext_main, by = "id") %>%
@@ -59,5 +46,18 @@ ext_kings <- ext_alsfrs %>%
     ) %>%
     bind_rows(ext_staging_deaths) %>%
     select(id, time_from_baseline, kings) %>%
+    arrange(id, time_from_baseline) %>%
+    drop_na()
+
+ext_mitos <- ext_alsfrs %>%
+    mutate(mitos = {
+        walking_selfcare <- q8_walking <= 1 | q6_dressing_and_hygiene <= 1
+        swallowing <- q3_swallowing <= 1
+        communication <- q1_speech <= 1 | q4_handwriting <= 1
+        breathing <- q10_dyspnea <= 1 | q12_respiratory_insufficiency <= 2
+        walking_selfcare + swallowing + communication + breathing
+    }) %>%
+    bind_rows(ext_staging_deaths) %>%
+    select(id, time_from_baseline, mitos) %>%
     arrange(id, time_from_baseline) %>%
     drop_na()

@@ -102,12 +102,12 @@ q3_time_to_kings <- ext_kings %>%
     mutate(
         across(
             starts_with("time_from_baseline_to_kings_"),
-            ~ date_of_baseline + dmonths(.x),
+            ~ date_of_baseline + .x,
             .names = "date_of__{.col}"
         ),
         across(
             starts_with("time_from_baseline_to_kings_"),
-            ~ age_at_baseline + .x / 12,
+            ~ age_at_baseline + .x / dyears(1),
             .names = "age_at__{.col}"
         )
     ) %>%
@@ -124,12 +124,12 @@ q3_time_to_mitos <- ext_mitos %>%
     mutate(
         across(
             starts_with("time_from_baseline_to_mitos_"),
-            ~ date_of_baseline + dmonths(.x),
+            ~ date_of_baseline + .x,
             .names = "date_of__{.col}"
         ),
         across(
             starts_with("time_from_baseline_to_mitos_"),
-            ~ age_at_baseline + .x / 12,
+            ~ age_at_baseline + .x / dyears(1),
             .names = "age_at__{.col}"
         )
     ) %>%
@@ -138,61 +138,56 @@ message("\rCalculating time to MiToS... done.")
 
 message("Calculating time to walking support...", appendLF = FALSE)
 q3_time_to_walking_support <- ext_alsfrs %>%
-    filter(time_from_baseline >= 0, q8_walking <= 2) %>%
+    filter(time_from_baseline >= ddays(0), q8_walking <= 2) %>%
     slice_min(time_from_baseline, by = "id", n = 1, with_ties = FALSE) %>%
-    right_join(ext_baseline, by = "id") %>%
-    transmute(
+    select(
         id,
-        age_at_walking_support = age_at_baseline + time_from_baseline / 12,
-        date_of_walking_support = date_of_baseline + dmonths(time_from_baseline)
+        age_at_walking_support = "age_at_assessment",
+        date_of_walking_support = "date_of_assessment"
     )
 message("\rCalculating time to walking support... done.")
 
 message("Calculating time to respiratory onset...", appendLF = FALSE)
 q3_time_to_respiratory_onset <- ext_alsfrs %>%
-    filter(time_from_baseline >= 0, q10_dyspnea <= 3 | q11_orthopnea <= 3) %>%
+    filter(time_from_baseline >= ddays(0), q10_dyspnea <= 3 | q11_orthopnea <= 3) %>%
     slice_min(time_from_baseline, by = "id", n = 1, with_ties = FALSE) %>%
-    right_join(ext_baseline, by = "id") %>%
-    transmute(
+    select(
         id,
-        age_at_respiratory_onset = age_at_baseline + time_from_baseline / 12,
-        date_of_respiratory_onset = date_of_baseline + dmonths(time_from_baseline)
+        age_at_respiratory_onset = "age_at_assessment",
+        date_of_respiratory_onset = "date_of_assessment"
     )
 message("\rCalculating time to respiratory onset... done.")
 
 message("Calculating time to NIV by ALSFRS-R...", appendLF = FALSE)
 q3_time_to_niv_by_alsfrs <- ext_alsfrs %>%
-    filter(time_from_baseline >= 0, q12_respiratory_insufficiency <= 3) %>%
+    filter(time_from_baseline >= ddays(0), q12_respiratory_insufficiency <= 3) %>%
     slice_min(time_from_baseline, by = "id", n = 1, with_ties = FALSE) %>%
-    right_join(ext_baseline, by = "id") %>%
-    transmute(
+    select(
         id,
-        age_at_niv_by_alsfrs = age_at_baseline + time_from_baseline / 12,
-        date_of_niv_by_alsfrs = date_of_baseline + dmonths(time_from_baseline)
+        age_at_niv_by_alsfrs = "age_at_assessment",
+        date_of_niv_by_alsfrs = "date_of_assessment"
     )
 message("\rCalculating time to NIV by ALSFRS-R... done.")
 
 message("Calculating time to NIV >23h by ALSFRS-R...", appendLF = FALSE)
 q3_time_to_niv_23h_by_alsfrs <- ext_alsfrs %>%
-    filter(time_from_baseline >= 0, q12_respiratory_insufficiency <= 1) %>%
+    filter(time_from_baseline >= ddays(0), q12_respiratory_insufficiency <= 1) %>%
     slice_min(time_from_baseline, by = "id", n = 1, with_ties = FALSE) %>%
-    right_join(ext_baseline, by = "id") %>%
-    transmute(
+    select(
         id,
-        age_at_niv_23h_by_alsfrs = age_at_baseline + time_from_baseline / 12,
-        date_of_niv_23h_by_alsfrs = date_of_baseline + dmonths(time_from_baseline)
+        age_at_niv_23h_by_alsfrs = "age_at_assessment",
+        date_of_niv_23h_by_alsfrs = "date_of_assessment"
     )
 message("\rCalculating time to NIV >23h by ALSFRS-R... done.")
 
 message("Calculating time to IMV by ALSFRS-R...", appendLF = FALSE)
 q3_time_to_imv_by_alsfrs <- ext_alsfrs %>%
-    filter(time_from_baseline >= 0, q12_respiratory_insufficiency == 0) %>%
+    filter(time_from_baseline >= ddays(0), q12_respiratory_insufficiency == 0) %>%
     slice_min(time_from_baseline, by = "id", n = 1, with_ties = FALSE) %>%
-    right_join(ext_baseline, by = "id") %>%
-    transmute(
+    select(
         id,
-        age_at_imv_by_alsfrs = age_at_baseline + time_from_baseline / 12,
-        date_of_imv_by_alsfrs = date_of_baseline + dmonths(time_from_baseline)
+        age_at_imv_by_alsfrs = "age_at_assessment",
+        date_of_imv_by_alsfrs = "date_of_assessment"
     )
 message("\rCalculating time to IMV by ALSFRS-R... done.")
 
@@ -257,19 +252,16 @@ q3_time_to_events <- ext_main %>%
                 dyears(age_at_niv_23h_by_alsfrs - .age_at_origin),
                 na.rm = TRUE
             ),
-            gastrostomy = ~ coalesce(
-                date_of_gastrostomy - .date_of_origin,
-                dyears(age_at_gastrostomy - .age_at_origin)
-            ),
-            tracheostomy = ~ coalesce(
+            tracheostomy = ~ pmin(
                 date_of_tracheostomy - .date_of_origin,
                 date_of_imv_by_alsfrs - .date_of_origin,
                 dyears(age_at_tracheostomy - .age_at_origin),
-                dyears(age_at_imv_by_alsfrs - .age_at_origin)
+                dyears(age_at_imv_by_alsfrs - .age_at_origin),
+                na.rm = TRUE
             ),
-            death = ~ coalesce(
-                date_of_death - date_of_birth,
-                dyears(age_at_death - .age_at_origin)
+            gastrostomy = ~ coalesce(
+                date_of_gastrostomy - .date_of_origin,
+                dyears(age_at_gastrostomy - .age_at_origin)
             ),
             kings_1 = ~ coalesce(
                 date_of_kings_1 - .date_of_origin,
@@ -310,6 +302,10 @@ q3_time_to_events <- ext_main %>%
             mitos_5 = ~ coalesce(
                 date_of_mitos_5 - .date_of_origin,
                 dyears(age_at_mitos_5 - .age_at_origin)
+            ),
+            death = ~ coalesce(
+                date_of_death - .date_of_origin,
+                dyears(age_at_death - .age_at_origin)
             )
         ),
         duration_for = list(
@@ -325,11 +321,10 @@ q3_time_to_events <- ext_main %>%
             .otherwise = ~ pmin(
                 dyears(age_at_death - .age_at_origin),
                 dyears(age_at_transfer - .age_at_origin),
-                date_of_death - .date_of_origin,
                 if_else(
                     vital_status == "Alive",
                     date_of_transfer - .date_of_origin,
-                    as.duration(NA)
+                    date_of_death - .date_of_origin
                 ),
                 na.rm = TRUE
             )
@@ -418,7 +413,8 @@ q3_data <- q3_subgroups %>%
     left_join(q3_time_to_events, by = "id") %>%
     filter(
         q3_is_valid_event_from_origin(event, origin),
-        site_of_onset != "Cognitive"
+        site_of_onset != "Cognitive",
+        duration >= as.duration(0)
     ) %>%
     arrange(origin, event)
 

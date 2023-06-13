@@ -166,17 +166,14 @@ ext_alsfrs_calculate_assessment_times <- function(data, baseline) {
         ) %>%
         mutate(
             time_from_baseline = coalesce(
-                (date_of_assessment - date_of_baseline) / dmonths(1),
-                (age_at_assessment - age_at_baseline) * 12
+                date_of_assessment - date_of_baseline,
+                dyears(age_at_assessment - age_at_baseline)
             )
         ) %>%
         select(-date_of_baseline, -age_at_baseline) %>%
         group_by(id) %>%
         arrange(time_from_baseline, .by_group = TRUE) %>%
-        ungroup() %>%
-        mutate(
-            time_from_last_assessment = time_from_baseline - lag(time_from_baseline)
-        )
+        ungroup()
 }
 
 ext_alsfrs <- suppressWarnings(
@@ -201,25 +198,25 @@ ext_baseline <- ext_main %>%
     select(id, date_of_birth, date_of_onset, age_at_onset) %>%
     inner_join(ext_alsfrs, by = "id", multiple = "all") %>%
     mutate(
-        time_from_onset = coalesce(
+        months_from_onset = coalesce(
             (date_of_assessment - date_of_onset) / dmonths(1),
             (age_at_assessment - age_at_onset) * 12
         )
     ) %>%
-    filter(time_from_onset > 0) %>%
-    slice_min(time_from_onset, by = "id", n = 1, with_ties = FALSE) %>%
+    filter(months_from_onset > 0) %>%
+    slice_min(months_from_onset, by = "id", n = 1, with_ties = FALSE) %>%
     transmute(
-        id, time_from_onset, total_score,
+        id, months_from_onset, total_score,
         date_of_baseline = date_of_assessment,
         age_at_baseline = coalesce(
             age_at_assessment,
             (date_of_baseline - date_of_birth) / dyears(1)
         ),
-        delta_fs = (48 - total_score) / time_from_onset
+        delta_fs = (48 - total_score) / months_from_onset
     )
 
 ext_alsfrs %<>% ext_alsfrs_calculate_assessment_times(ext_baseline)
-ext_alsfrs_premorbid <- filter(ext_alsfrs, time_from_baseline < 0)
+ext_alsfrs_premorbid <- filter(ext_alsfrs, time_from_baseline < ddays(0))
 
 ext_baseline_deltafs_p25 <- quantile(ext_baseline$delta_fs, .25)
 ext_baseline_deltafs_p75 <- quantile(ext_baseline$delta_fs, .75)
