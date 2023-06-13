@@ -1,4 +1,6 @@
-library(lubridate)
+suppressPackageStartupMessages({
+    library(lubridate)
+})
 
 source("src/ext/common.r")
 

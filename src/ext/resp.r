@@ -1,3 +1,7 @@
+suppressPackageStartupMessages({
+    library(stringr)
+})
+
 source("src/ext/common.r")
 
 ext_resp <- ext_load_data(

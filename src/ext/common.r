@@ -1,7 +1,9 @@
-library(readxl)
-library(dplyr)
-library(stringr)
-library(tidyr)
+suppressPackageStartupMessages({
+    library(readxl)
+    library(dplyr)
+    library(stringr)
+    library(tidyr)
+})
 
 ext_load_data <- function(path, ...) {
     data_dir <- Sys.getenv("PALS_EXTANT_DATADIR", unset = "./data")

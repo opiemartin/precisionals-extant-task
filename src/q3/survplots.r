@@ -1,11 +1,13 @@
-library(dplyr)
-library(survival)
-library(ggsurvfit)
-library(lubridate)
-library(magrittr)
-library(progress)
-library(rlang)
-library(xfun)
+suppressPackageStartupMessages({
+    library(dplyr)
+    library(survival)
+    library(ggsurvfit)
+    library(lubridate)
+    library(magrittr)
+    library(progress)
+    library(rlang)
+    library(xfun)
+})
 
 source("src/q3/utils.r")
 

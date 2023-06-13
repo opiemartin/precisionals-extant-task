@@ -1,7 +1,9 @@
-library(dplyr)
-library(lubridate)
-library(magrittr)
-library(tidyr)
+suppressPackageStartupMessages({
+    library(dplyr)
+    library(lubridate)
+    library(magrittr)
+    library(tidyr)
+})
 
 source("src/ext/main.r")
 

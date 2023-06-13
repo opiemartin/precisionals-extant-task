@@ -1,7 +1,3 @@
-library(rlang)
-library(tibble)
-library(stringr)
-
 source("src/ext/main.r")
 source("src/ext/alsfrs.r")
 
