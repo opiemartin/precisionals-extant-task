@@ -11,8 +11,11 @@ suppressPackageStartupMessages({
 
 message("Loading the dataset...", appendLF = FALSE)
 source("src/ext/main.r")
+source("src/ext/resp.r")
 source("src/ext/staging.r")
 message("\rLoading the dataset... done.")
+
+source("src/q3/common.r")
 
 q3_calculate_time_to_stage <- function(data, time, stage, values) {
     stage_col <- as_label(enquo(stage))
@@ -54,7 +57,7 @@ q3_analyze_time_to_event <- function(data, origin, events, duration_for, censore
             duration_key <- if_else(exists(e, where = duration_for), e, ".otherwise")
             epochs_from_origin <- f_eval(duration_for[[duration_key]], odata)
             epochs_to_loss <- epochs_from_origin
-            if (!is.null(censored_for) && exists(e, where = censored_for)) {
+            if (!is.null(censored_for) && exists(e, censored_for)) {
                 epochs_to_loss <- pmin(
                     epochs_to_loss,
                     f_eval(censored_for[[e]], odata),
@@ -80,16 +83,6 @@ q3_analyze_time_to_event <- function(data, origin, events, duration_for, censore
         }
     }
     result
-}
-
-q3_is_valid_event_from_origin <- function(event, origin) {
-    case_match(event,
-        origin ~ FALSE,
-        "birth" ~ TRUE,
-        "onset" ~ event != "birth",
-        "diagnosis" ~ !(event %in% c("birth", "onset")),
-        .default = TRUE
-    )
 }
 
 message("Calculating time to King's...", appendLF = FALSE)
@@ -158,6 +151,26 @@ q3_time_to_respiratory_onset <- ext_alsfrs %>%
     )
 message("\rCalculating time to respiratory onset... done.")
 
+q3_vc_assessments <- ext_resp %>%
+    left_join(ext_main, by = "id") %>%
+    mutate(
+        time_from_onset = coalesce(
+            date_of_assessment - date_of_onset,
+            dyears(age_at_assessment - age_at_onset)
+        )
+    )
+
+message("Calculating time to vital capacity decline...", appendLF = FALSE)
+q3_time_to_vc_decline <- q3_vc_assessments %>%
+    filter(fvc_rel < 80 | svc_rel < 80) %>%
+    slice_min(time_from_onset, n = 1, with_ties = FALSE, by = "id") %>%
+    select(
+        id,
+        date_of_vc_decline = "date_of_assessment",
+        age_at_vc_decline = "age_at_assessment"
+    )
+message("\rCalculating time to vital capacity decline... done.")
+
 message("Calculating time to NIV by ALSFRS-R...", appendLF = FALSE)
 q3_time_to_niv_by_alsfrs <- ext_alsfrs %>%
     filter(time_from_baseline >= ddays(0), q12_respiratory_insufficiency <= 3) %>%
@@ -191,15 +204,38 @@ q3_time_to_imv_by_alsfrs <- ext_alsfrs %>%
     )
 message("\rCalculating time to IMV by ALSFRS-R... done.")
 
+message("Calculating time to last ALSFRS-R assessment...", appendLF = FALSE)
+q3_time_to_last_alsfrs_assessment <- ext_alsfrs %>%
+    filter(time_from_baseline >= ddays(0)) %>%
+    slice_max(time_from_baseline, by = "id", n = 1, with_ties = FALSE) %>%
+    select(
+        id,
+        age_at_last_alsfrs_assessment = "age_at_assessment",
+        date_of_last_alsfrs_assessment = "date_of_assessment"
+    )
+message("\rCalculating time to last ALSFRS-R assessment... done.")
+
+message("Calculating time to last vital capacity assessment...", appendLF = FALSE)
+q3_time_to_last_vc_assessment <- q3_vc_assessments %>%
+    slice_max(time_from_onset, n = 1, with_ties = FALSE, by = "id") %>%
+    select(
+        id,
+        date_of_last_vc_assessment = "date_of_assessment",
+        age_at_last_vc_assessment = "age_at_assessment"
+    )
+message("\rCalculating time to last vital capacity assessment... done.")
+
 message("Calculating time to events...", appendLF = FALSE)
 q3_time_to_events <- ext_main %>%
     left_join(q3_time_to_kings, by = "id") %>%
     left_join(q3_time_to_mitos, by = "id") %>%
     left_join(q3_time_to_walking_support, by = "id") %>%
     left_join(q3_time_to_respiratory_onset, by = "id") %>%
+    left_join(q3_time_to_vc_decline, by = "id") %>%
     left_join(q3_time_to_niv_by_alsfrs, by = "id") %>%
     left_join(q3_time_to_niv_23h_by_alsfrs, by = "id") %>%
     left_join(q3_time_to_imv_by_alsfrs, by = "id") %>%
+    left_join(q3_time_to_last_vc_assessment, by = "id") %>%
     q3_analyze_time_to_event(
         origin = c("birth", "onset", "diagnosis"),
         events = list(
@@ -211,13 +247,17 @@ q3_time_to_events <- ext_main %>%
                 date_of_diagnosis - .date_of_origin,
                 dyears(age_at_diagnosis - .age_at_origin)
             ),
+            walking_support = ~ coalesce(
+                date_of_walking_support - .date_of_origin,
+                dyears(age_at_walking_support - .age_at_origin)
+            ),
             respiratory_onset = ~ coalesce(
                 date_of_respiratory_onset - .date_of_origin,
                 dyears(age_at_respiratory_onset - .age_at_origin)
             ),
-            walking_support = ~ coalesce(
-                date_of_walking_support - .date_of_origin,
-                dyears(age_at_walking_support - .age_at_origin)
+            vc_decline = ~ coalesce(
+                date_of_vc_decline - .date_of_origin,
+                dyears(age_at_vc_decline - .age_at_origin)
             ),
             ventilatory_support = ~ pmin(
                 date_of_niv - .date_of_origin,
@@ -309,6 +349,10 @@ q3_time_to_events <- ext_main %>%
             )
         ),
         duration_for = list(
+            vc_decline = ~ coalesce(
+                date_of_last_vc_assessment - .date_of_origin,
+                dyears(age_at_last_vc_assessment - .age_at_origin)
+            ),
             death = ~ pmin(
                 dyears(age_at_transfer - .age_at_origin),
                 if_else(
