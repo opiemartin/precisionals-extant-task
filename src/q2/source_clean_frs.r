@@ -19,7 +19,7 @@ checkFRS <- function(ID) {
 }
 
 #### 1. Data ####
-D <- read.xlsx("data/P-ALS_Ext_ALSFRS-R.xlsx", detectDates = F)
+D <- read.xlsx("NEWPALSDATA/P-ALS_Ext_V2_ALSFRS-R.xlsx", detectDates = F)
 
 #### 2. Cleaning ####
 # . Rename cols
@@ -67,7 +67,7 @@ D$TIME <- unlist(by(D, D$ID, function(d) {
 # . Clean total score
 D$TOTAL[D$TOTAL == "N/A" | D$TOTAL == "Missing"] <- NA
 D$TOTAL <- as.numeric(D$TOTAL)
-D[!is.na(D$TOTAL) & D$TOTAL > 48, ]$TOTAL <- 33
+#D[!is.na(D$TOTAL) & D$TOTAL > 48, ]$TOTAL <- 33
 D <- D[!is.na(D$TOTAL), ] # 36025 -> 35908
 D <- D[!D$TOTAL == 0, ] # this leads to many errors; maybe 1 or 2 true but not worth keeping
 # 35908 -> 35839
@@ -98,39 +98,39 @@ D <- D[!(D$ID == "FRA-0048" & D$TOTAL == 0), ]
 D <- D[!(D$ID == "NLD-0087" & D$TIME == 0), ]
 D <- D[!(D$ID == "NLD-0253" & D$AGE == 65.56), ]
 
-D[(D$ID == "BEL-1098" & D$DATE == "2018-01-22"), ]$DATE <- "2019-01-22"
-D[(D$ID == "FRA-0260" & D$DATE == "2004-03-15"), ]$DATE <- "2005-03-15"
-D[(D$ID == "FRA-0964" & D$DATE == "2009-10-10"), ]$DATE <- "2008-10-10"
-D[(D$ID == "IRE-3035" & D$DATE == "2014-09-25"), ]$DATE <- "2015-09-25"
-D[(D$ID == "BEL-0353" & D$DATE == "2010-01-21"), ]$DATE <- "2009-01-21"
-D[D$ID == "BEL-0596" & D$TIME == 0, ]$TOTAL <- 42
+#D[(D$ID == "BEL-1098" & D$DATE == "2018-01-22"), ]$DATE <- "2019-01-22"
+#D[(D$ID == "FRA-0260" & D$DATE == "2004-03-15"), ]$DATE <- "2005-03-15"
+#D[(D$ID == "FRA-0964" & D$DATE == "2009-10-10"), ]$DATE <- "2008-10-10"
+#D[(D$ID == "IRE-3035" & D$DATE == "2014-09-25"), ]$DATE <- "2015-09-25"
+#D[(D$ID == "BEL-0353" & D$DATE == "2010-01-21"), ]$DATE <- "2009-01-21"
+#D[D$ID == "BEL-0596" & D$TIME == 0, ]$TOTAL <- 42
 
 D <- D[!(D$ID == "BEL-0353" & D$DATE == "2009-05-14"), ]
 D <- D[!(D$ID == "BEL-0353" & D$DATE == "2009-08-06"), ]
 D <- D[!(D$ID == "BEL-0530" & D$DATE == "2015-06-04"), ]
-D[(D$ID == "BEL-0535" & D$DATE == "2013-11-29"), ]$DATE <- "2012-11-29"
+#D[(D$ID == "BEL-0535" & D$DATE == "2013-11-29"), ]$DATE <- "2012-11-29"
 
 ### BEL-1013 this person going up and down
-D[(D$ID == "BEL-1447" & D$DATE == "2021-04-15"), ]$DATE <- "2020-04-15"
+#D[(D$ID == "BEL-1447" & D$DATE == "2021-04-15"), ]$DATE <- "2020-04-15"
 D <- D[!(D$ID == "BEL-1013" & D$DATE == "2015-04-21"), ]
 D <- D[!(D$ID == "BEL-1013" & D$DATE == "2020-10-19"), ]
-D[(D$ID == "SHE-0094" & D$DATE == "2016-10-05"), ]$I12 <- 4
-D[(D$ID == "SHE-0156" & D$DATE == "2011-07-11"), ]$DATE <- "2012-07-11"
-D[(D$ID == "SHE-0195" & D$DATE == "2009-09-10"), ]$DATE <- "2008-09-10"
-D[(D$ID == "SHE-0208" & D$DATE == "2017-02-28"), ]$DATE <- "2018-02-28"
-D[(D$ID == "SHE-0228" & D$DATE == "2009-09-14"), ]$DATE <- "2008-09-14"
-D[(D$ID == "SHE-0343" & D$DATE == "2014-07-23"), ]$DATE <- "2015-07-23"
-D[(D$ID == "SHE-0508" & D$DATE == "2014-10-08"), ]$DATE <- "2015-10-08"
+#D[(D$ID == "SHE-0094" & D$DATE == "2016-10-05"), ]$I12 <- 4
+#D[(D$ID == "SHE-0156" & D$DATE == "2011-07-11"), ]$DATE <- "2012-07-11"
+#D[(D$ID == "SHE-0195" & D$DATE == "2009-09-10"), ]$DATE <- "2008-09-10"
+#D[(D$ID == "SHE-0208" & D$DATE == "2017-02-28"), ]$DATE <- "2018-02-28"
+#D[(D$ID == "SHE-0228" & D$DATE == "2009-09-14"), ]$DATE <- "2008-09-14"
+#D[(D$ID == "SHE-0343" & D$DATE == "2014-07-23"), ]$DATE <- "2015-07-23"
+#D[(D$ID == "SHE-0508" & D$DATE == "2014-10-08"), ]$DATE <- "2015-10-08"
 
 ## Based on date of diagnosis/death from main file
-D[(D$ID == "SHE-0589" & D$DATE == "2013-05-22"), ]$DATE <- "2012-05-22"
+#D[(D$ID == "SHE-0589" & D$DATE == "2013-05-22"), ]$DATE <- "2012-05-22"
 
 D <- D[!(D$ID == "SHE-0867" & D$DATE == "2017-07-26"), ]
 D <- D[!(D$ID == "SHE-0871" & D$DATE == "2011-03-16"), ]
 D <- D[!(D$ID == "SHE-0871" & D$DATE == "2011-09-22"), ]
 D <- D[!(D$ID == "SHE-1220" & D$DATE == "2019-11-12"), ]
 D <- D[!(D$ID == "SHE-1313" & D$DATE == "2018-03-13"), ]
-D[(D$ID == "SHE-1341" & D$DATE == "2020-01-22"), ]$DATE <- "2019-01-22"
+#D[(D$ID == "SHE-1341" & D$DATE == "2020-01-22"), ]$DATE <- "2019-01-22"
 D <- D[!(D$ID == "SPA-0008" & D$DATE == "2017-12-01"), ]
 D <- D[!(D$ID == "SPA-0025" & D$DATE == "2021-11-02"), ]
 D <- D[!(D$ID == "SPA-0046" & D$DATE == "2017-10-06"), ]
@@ -150,7 +150,7 @@ D <- D[!(D$ID == "SPA-0189" & D$DATE == "2016-12-16"), ]
 ## SPA-0305 person appears to be getting better and then worse throughout
 # checkFRS ("SPA-0305") # two different patients
 D <- D[!D$ID == "SPA-0305", ]
-D[(D$ID == "SPA-0361" & D$DATE == "2019-02-19"), ]$DATE <- "2020-02-19"
+#D[(D$ID == "SPA-0361" & D$DATE == "2019-02-19"), ]$DATE <- "2020-02-19"
 
 ## SPA-0391 - 2019-02-15 probably not wrong year, might be genuine increase
 # . Ruben: this is entry mistake
@@ -161,8 +161,8 @@ D <- D[!(D$ID == "SPA-0466" & D$DATE == "2022-01-18"), ]
 ## SPA-0480 think it is a genuine rapid drop
 # . Ruben: yes but 3rd measure is incorrect
 # checkFRS ("SPA-0488")
-D <- D[!(D$ID == "SPA-0488" & D$DATE == "2019-02-15"), ]
-D[(D$ID == "SPA-0673" & D$DATE == "2020-04-23"), ]$DATE <- "2019-04-23"
+#D <- D[!(D$ID == "SPA-0488" & D$DATE == "2019-02-15"), ]
+#D[(D$ID == "SPA-0673" & D$DATE == "2020-04-23"), ]$DATE <- "2019-04-23"
 D <- D[!(D$ID == "SPA-0698" & D$DATE == "2020-10-30"), ]
 D <- D[!(D$ID == "SPA-0762" & D$DATE == "2021-06-04"), ]
 # checkFRS ("SPA-0762")
@@ -177,11 +177,11 @@ D <- D[!(D$ID == "SPA-0762" & D$DATE == "2021-06-04"), ]
 # checkFRS ("SWE-0114") # here only second is mistake
 D <- D[!(D$ID == "SWE-0114" & D$DATE == "2017-07-01"), ]
 
-D[(D$ID == "SWE-0243" & D$DATE == "2021-12-31"), ]$DATE <- "2020-12-31"
+#D[(D$ID == "SWE-0243" & D$DATE == "2021-12-31"), ]$DATE <- "2020-12-31"
 D <- D[!(D$ID == "SWE-0263" & D$DATE == "2017-12-01"), ]
-D[(D$ID == "SWE-0270" & D$DATE == "2019-02-02"), ]$DATE <- "2020-02-02"
-D[(D$ID == "SWE-0283" & D$DATE == "2018-09-09"), ]$DATE <- "2019-09-09"
-D[(D$ID == "SWE-0331" & D$DATE == "2016-11-07"), ]$DATE <- "2017-11-07"
+#D[(D$ID == "SWE-0270" & D$DATE == "2019-02-02"), ]$DATE <- "2020-02-02"
+#D[(D$ID == "SWE-0283" & D$DATE == "2018-09-09"), ]$DATE <- "2019-09-09"
+#D[(D$ID == "SWE-0331" & D$DATE == "2016-11-07"), ]$DATE <- "2017-11-07"
 D <- D[!(D$ID == "SWE-0355" & D$DATE == "2022-04-20"), ]
 # checkFRS ("SWE-0355")
 
@@ -215,18 +215,18 @@ D <- D[!(D$ID == "NLD-2864" & (D$AGE == "71.21" | D$AGE == "71.3")), ]
 D <- D[!(D$ID == "NLD-2919" & (D$AGE == "55.01" | D$AGE == "55.12" | D$TOTAL == "41")), ]
 D <- D[!(D$ID == "NLD-2950" & (D$AGE == "58.23" | D$AGE == "58.24")), ]
 D <- D[!(D$ID == "NLD-2964" & D$AGE == "46.26"), ]
-D[(D$ID == "NLD-0979" & D$AGE == "74.18"), ]$AGE <- 73.18
-D[(D$ID == "NLD-1073" & D$AGE == "77.11"), ]$AGE <- 76.11
-D[(D$ID == "NLD-1556" & D$AGE == "59.77"), ]$AGE <- 60.77
-D[(D$ID == "NLD-1999" & D$AGE == "72.72"), ]$AGE <- 71.72
-D[(D$ID == "NLD-2188" & D$AGE == "52.71"), ]$AGE <- 51.71
-D[(D$ID == "NLD-2275" & D$AGE == "70.34"), ]$AGE <- 71.34
-D[(D$ID == "NLD-2349" & D$AGE == "77.4"), ]$AGE <- 76.4
-D[(D$ID == "NLD-2807" & D$AGE == "67.59"), ]$AGE <- 68.59
-D[(D$ID == "NLD-2847" & D$AGE == "68.59"), ]$AGE <- 67.59
-D[(D$ID == "NLD-2919" & D$AGE == "54.39"), ]$AGE <- 55.39
-D[(D$ID == "NLD-2955" & D$AGE == "69"), ]$AGE <- 70
-D[(D$ID == "NLD-2759" & D$AGE == "47.29"), ]$TOTAL <- 43
+#D[(D$ID == "NLD-0979" & D$AGE == "74.18"), ]$AGE <- 73.18
+#D[(D$ID == "NLD-1073" & D$AGE == "77.11"), ]$AGE <- 76.11
+#D[(D$ID == "NLD-1556" & D$AGE == "59.77"), ]$AGE <- 60.77
+#D[(D$ID == "NLD-1999" & D$AGE == "72.72"), ]$AGE <- 71.72
+#D[(D$ID == "NLD-2188" & D$AGE == "52.71"), ]$AGE <- 51.71
+#D[(D$ID == "NLD-2275" & D$AGE == "70.34"), ]$AGE <- 71.34
+#D[(D$ID == "NLD-2349" & D$AGE == "77.4"), ]$AGE <- 76.4
+#D[(D$ID == "NLD-2807" & D$AGE == "67.59"), ]$AGE <- 68.59
+#D[(D$ID == "NLD-2847" & D$AGE == "68.59"), ]$AGE <- 67.59
+#D[(D$ID == "NLD-2919" & D$AGE == "54.39"), ]$AGE <- 55.39
+#D[(D$ID == "NLD-2955" & D$AGE == "69"), ]$AGE <- 70
+#D[(D$ID == "NLD-2759" & D$AGE == "47.29"), ]$TOTAL <- 43
 
 # . Recalculate time:
 D$TIME <- unlist(by(D, D$ID, function(d) {
@@ -241,6 +241,7 @@ D$TIME <- unlist(by(D, D$ID, function(d) {
     as.numeric(d$DATE - min(d$DATE)) / (365.25 / 12)
   }
 }))
+
 D <- D[order(D$ID, D$TIME), ]
 
 # . Visual check data
