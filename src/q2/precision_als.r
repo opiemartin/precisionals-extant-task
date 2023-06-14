@@ -24,18 +24,18 @@ D <- read.xlsx("data/P-ALS_Ext_ALSFRS-R.xlsx", detectDates = F)
 #### 2. Cleaning ####
 # . Rename cols
 D <- rn(D,
-  old = c(
-    "1).Speech", "2).Salivation",
-    "3).Swallowing",
-    "4).Handwriting", "5a).Cutting.Food.without.Gastrostomy",
-    "5b).Cutting.Food.with.Gastrostomy",
-    "5x).Cutting.Food.with.-.Gastrostomy.Status.Unknown",
-    "6).Dressing.and.Hygine",
-    "7).Turning.in.Bed", "8).Walking", "9).Climbing.Stairs",
-    "10).Dyspnea", "11).Orthopnea", "12).Respiratory.Insufficiency",
-    "Total.Score"
-  ),
-  new = c("I1", "I2", "I3", "I4", "I5A", "I5B", "I5X", "I6", "I7", "I8", "I9", "I10", "I11", "I12", "TOTAL")
+        old = c(
+          "1).Speech", "2).Salivation",
+          "3).Swallowing",
+          "4).Handwriting", "5a).Cutting.Food.without.Gastrostomy",
+          "5b).Cutting.Food.with.Gastrostomy",
+          "5x).Cutting.Food.with.-.Gastrostomy.Status.Unknown",
+          "6).Dressing.and.Hygine",
+          "7).Turning.in.Bed", "8).Walking", "9).Climbing.Stairs",
+          "10).Dyspnea", "11).Orthopnea", "12).Respiratory.Insufficiency",
+          "Total.Score"
+        ),
+        new = c("I1", "I2", "I3", "I4", "I5A", "I5B", "I5X", "I6", "I7", "I8", "I9", "I10", "I11", "I12", "TOTAL")
 )
 
 # . Recreate date
@@ -286,19 +286,19 @@ D$MAXTIME <- unlist(by(D, D$ID, function(d) {
 B <- D[D$TIME == 0, ]
 
 barplot(table(B$Site),
-  las = 2, ylim = c(0, 3500),
-  ylab = "Number of patients"
+        las = 2, ylim = c(0, 3500),
+        ylab = "Number of patients"
 )
 boxplot(B$TOTAL ~ B$Site,
-  ylim = c(0, 48),
-  xlab = "", las = 2, ylab = "ALSFRS-R total score"
+        ylim = c(0, 48),
+        xlab = "", las = 2, ylab = "ALSFRS-R total score"
 )
 boxplot(B$MAXOBS ~ B$Site,
-  ylim = c(0, 30),
-  xlab = "", las = 2, ylab = "Number of observations"
+        ylim = c(0, 30),
+        xlab = "", las = 2, ylab = "Number of observations"
 )
 boxplot(B$MAXTIME ~ B$Site,
-  xlab = "", las = 2, ylab = "Observation time"
+        xlab = "", las = 2, ylab = "Observation time"
 )
 
 #### 5. Modelling ####
@@ -312,25 +312,25 @@ plot(D$TIME, D$TIME_12)
 
 library("optimx")
 m00 <- lmer(TOTAL ~ TIME + (TIME | ID),
-  data = D, REML = F,
-  control = lmerControl(
-    optimizer = "optimx",
-    optCtrl = list(method = "nlminb")
-  )
+            data = D, REML = F,
+            control = lmerControl(
+              optimizer = "optimx",
+              optCtrl = list(method = "nlminb")
+            )
 )
 m0 <- lmer(TOTAL ~ TIME + (TIME | ID) + (1 | SITE),
-  data = D, REML = F,
-  control = lmerControl(
-    optimizer = "optimx",
-    optCtrl = list(method = "nlminb")
-  )
+           data = D, REML = F,
+           control = lmerControl(
+             optimizer = "optimx",
+             optCtrl = list(method = "nlminb")
+           )
 )
 m <- lmer(TOTAL ~ TIME + (TIME | ID) + (TIME | SITE),
-  data = D, REML = F,
-  control = lmerControl(
-    optimizer = "optimx",
-    optCtrl = list(method = "nlminb")
-  )
+          data = D, REML = F,
+          control = lmerControl(
+            optimizer = "optimx",
+            optCtrl = list(method = "nlminb")
+          )
 )
 anova(m00, m0, m)
 
@@ -344,8 +344,8 @@ summary(m)
 coef(m)$SITE
 
 plot(coef(m)$SITE[, 1],
-  coef(m)$SITE[, 2],
-  cex = 15 * table(D$SITE) / nrow(D),
-  ylab = "Progression rate",
-  xlab = "Baseline value", ylim = c(-1.25, -0.75)
+     coef(m)$SITE[, 2],
+     cex = 15 * table(D$SITE) / nrow(D),
+     ylab = "Progression rate",
+     xlab = "Baseline value", ylim = c(-1.25, -0.75)
 )

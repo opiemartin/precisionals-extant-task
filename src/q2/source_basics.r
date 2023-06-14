@@ -55,21 +55,21 @@ unLink <- function (v, sep = ";"){as.numeric (unlist (str_split (v, sep)))}
 
 ### Rubins
 Rubin <- function (coef, var, alpha = 0.05){
-
+  
   # Formula's based on Rubin's 1981 == method rubin1987 in mice (!):
   # http://fmwww.bc.edu/RePEc/bocode/c/carlin.pdf
-
+  
   # Variances
   m <- length (coef)
   Bmi <- mean (coef) # pooled estimate
   W <- mean (var) # variance
   B <- (1/(m - 1)) * sum ((coef - Bmi)^2) # between imputation variance
   Vmi <- W + ((1+ (1/m)) * B) # total variance
-
+  
   # Statistic:
   t <- Vmi^(-0.5) * Bmi
   df <- (m - 1)*(1 + (W/((1+(1/m))* B)))^2
-
+  
   # Put results in dataframe & return:
   RESULT <- data.frame (EST = Bmi,
                         SE = sqrt (Vmi),
@@ -78,7 +78,7 @@ Rubin <- function (coef, var, alpha = 0.05){
                         t = t,
                         df = df,
                         p = 2*pt (t, df = df, lower.tail = if (t < 0) {T} else {F}))
-
+  
   return (RESULT)
 }
 
@@ -98,7 +98,7 @@ polygon.step <- function(x, y1, y2, border=FALSE, ...) {
 
 # Calculate ENCALS LP
 MyLP <- function (AGE, DISDUR, DXDELAY, SLOPE, VC, ONSET, EE, FTD, C9){
-
+  
   AGE_ONSET <- AGE - (DISDUR/12)
   tAGE <- (AGE_ONSET/100)^-2
   tDXDELAY <- ((DXDELAY/10)^-.5) + log (DXDELAY/10)
@@ -133,26 +133,26 @@ At.Risk <- function (data,
                      clean = F,
                      stime.var = "STIME",
                      status.var = "STATUS"){
-
+  
   ## Factorize
   data$fSTATUS <- factor (data[, status.var])
   data[, grp.var] <- factor (data[, grp.var])
-
+  
   ## Deaths:
   evts <- sapply (time, function (t.ii){table (data[data[, stime.var] > t.ii, "fSTATUS"],
                                                data[data[, stime.var] > t.ii, grp.var])[2, ]})
   mu <- table (data[data[, status.var] == 1, grp.var])
   evts <- -sweep (evts, 1, t (mu))
-
+  
   ## Censored:
   cens <- sapply (time, function (t.ii){table (data[data[, stime.var] > t.ii, "fSTATUS"],
                                                data[data[, stime.var] > t.ii, grp.var])[1, ]})
   mu <- table (data[data[, status.var] == 0, grp.var])
   cens <- -sweep (cens, 1, t (mu))
-
+  
   ## At risk:
   at.risk <- -sweep ((evts + cens), 1, table (data[, grp.var]))
-
+  
   if (isTRUE(clean)){
     t (sapply (1:nrow (at.risk), function (row.ii){
       paste0 (at.risk[row.ii, ], " (", cens[row.ii, ], ")")
@@ -160,7 +160,7 @@ At.Risk <- function (data,
   } else {
     at.risk
   }
-
+  
 }
 
 ## Round with fixed decimals

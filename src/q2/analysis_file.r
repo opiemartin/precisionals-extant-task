@@ -224,15 +224,17 @@ text (quantile (coef (m.spline)$ID[, "TIME"], 0.75), 0.05, round (quantile (coef
 source("src/ext/main.R")
 
 B_age_onset <- B %>% 
-  left_join(select(ext_main, id, calculated_age_at_onset, date_of_onset), by=c("ID"="id")) %>%
+  left_join(select(ext_main, id, age_at_onset, date_of_onset), by=c("ID"="id")) %>%
   mutate(
-    DATE = as.POSIXlt(DATE),
-    time_to_alsfrsr = case_when(!is.na(DATE) && !is.na(date_of_onset) ~ ((as.numeric(DATE-date_of_onset))/365.25)*12,
-                                !is.na(AGE) && !is.na(calculated_age_at_onset) ~ (AGE-calculated_age_at_onset)*12 
-                                    ),
+    DATE = as.Date(DATE),
+    date_of_onset = as.Date(date_of_onset),
+    time_to_alsfrsr = case_when(!is.na(DATE) & !is.na(date_of_onset) ~ (as.numeric(DATE-date_of_onset)/365.25)*12,
+                                !is.na(AGE) & !is.na(age_at_onset) ~ (AGE-age_at_onset)*12 
+    ),
     delta_alsfrsr = case_when(time_to_alsfrsr > 0 & TOTAL < 48 ~ (48-TOTAL)/time_to_alsfrsr,
                               TRUE ~ as.numeric(NA))) %>%
-  select(ID, SITE, DATE, AGE, TOTAL, date_of_onset, calculated_age_at_onset, time_to_alsfrsr, delta_alsfrsr)%>%
+  select(ID, SITE, DATE, AGE, TOTAL, date_of_onset, age_at_onset, time_to_alsfrsr, delta_alsfrsr)%>%
+  filter(!is.na(time_to_alsfrsr)) %>%
   #group_by(SITE) %>%
   summarise(median_delta = median(delta_alsfrsr, na.rm=T),
             lower_quartile = quantile(delta_alsfrsr, 0.25, na.rm=T),
@@ -247,34 +249,34 @@ alsfrsr_ids <- unique(D$ID)
 
 ext_main_dx_clean <- ext_main %>%
   mutate(diagnosis_ALS = diagnosis %in% c(
-           "ALS",
-           "ALS plus",
-           "ALS/FTD",
-           "Atypical",
-           "Head drop",
-           "PBP"),
-         diagnosis_PLS = diagnosis %in% c(
-           "PLS",
-           "PLS/ALS"
-         ),
-         diagnosis_PMA = diagnosis %in% c(
-           "PMA"
-         ),
-         diagnosis_UMNpred = diagnosis %in% c(
-           "UMN Predominant ALS",
-           "Suspected PLS"
-         ),
-         diagnosis_LMNpred = diagnosis %in% c(
-           "LMN Predominant ALS",
-           "Flail arm",
-           "Flail leg"
-         ), 
-         diagnosis_not_ALS = diagnosis %in% c(
-           "MMN",
-           "FTD",
-           "Unknown (son of ALS patient)"
-         ),
-         diagnosis_na = is.na(diagnosis)
+    "ALS",
+    "ALS plus",
+    "ALS/FTD",
+    "Atypical",
+    "Head drop",
+    "PBP"),
+    diagnosis_PLS = diagnosis %in% c(
+      "PLS",
+      "PLS/ALS"
+    ),
+    diagnosis_PMA = diagnosis %in% c(
+      "PMA"
+    ),
+    diagnosis_UMNpred = diagnosis %in% c(
+      "UMN Predominant ALS",
+      "Suspected PLS"
+    ),
+    diagnosis_LMNpred = diagnosis %in% c(
+      "LMN Predominant ALS",
+      "Flail arm",
+      "Flail leg"
+    ), 
+    diagnosis_not_ALS = diagnosis %in% c(
+      "MMN",
+      "FTD",
+      "Unknown (son of ALS patient)"
+    ),
+    diagnosis_na = is.na(diagnosis)
   ) 
 
 
@@ -300,7 +302,7 @@ main_summary_alsfrsr <- ext_main_dx_clean %>%
             median_disease_duration = median(age_at_death-age_at_onset, na.rm = T))
 
 main_summary <- ext_main_dx_clean %>%
-    summarise(n = n(),
+  summarise(n = n(),
             mean_age_onset = mean(as.numeric(calculated_age_at_onset), na.rm=T),
             mean_age_diagnosis = mean(as.numeric(calculated_age_at_diagnosis), na.rm=T),
             female_percent = round((sum(sex=="Female", na.rm=T)/n())*100,1),
