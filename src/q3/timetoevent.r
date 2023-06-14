@@ -54,7 +54,7 @@ q3_analyze_time_to_event <- function(data, origin, events, duration_for, censore
             filter(!is.na(.date_of_origin) | !is.na(.age_at_origin))
         for (e in names(events)) {
             epochs_to_event <- f_eval(events[[e]], odata)
-            duration_key <- if_else(exists(e, where = duration_for), e, ".otherwise")
+            duration_key <- if_else(exists(e, duration_for), e, ".otherwise")
             epochs_from_origin <- f_eval(duration_for[[duration_key]], odata)
             epochs_to_loss <- epochs_from_origin
             if (!is.null(censored_for) && exists(e, censored_for)) {
@@ -225,6 +225,9 @@ q3_time_to_last_vc_assessment <- q3_vc_assessments %>%
     )
 message("\rCalculating time to last vital capacity assessment... done.")
 
+# NOTE: explicit casts are necessary because pmin seems to get confused
+#       when mixing NA days (POSIXct) and dyears(x) (lubridate) types.
+
 message("Calculating time to events...", appendLF = FALSE)
 q3_time_to_events <- ext_main %>%
     left_join(q3_time_to_kings, by = "id") %>%
@@ -241,32 +244,32 @@ q3_time_to_events <- ext_main %>%
         origin = c("birth", "onset", "diagnosis"),
         events = list(
             onset = ~ coalesce(
-                date_of_onset - .date_of_origin,
+                as.duration(date_of_onset - .date_of_origin),
                 dyears(age_at_onset - .age_at_origin)
             ),
             diagnosis = ~ coalesce(
-                date_of_diagnosis - .date_of_origin,
+                as.duration(date_of_diagnosis - .date_of_origin),
                 dyears(age_at_diagnosis - .age_at_origin)
             ),
             walking_support = ~ coalesce(
-                date_of_walking_support - .date_of_origin,
+                as.duration(date_of_walking_support - .date_of_origin),
                 dyears(age_at_walking_support - .age_at_origin)
             ),
             respiratory_onset = ~ coalesce(
-                date_of_respiratory_onset - .date_of_origin,
+                as.duration(date_of_respiratory_onset - .date_of_origin),
                 dyears(age_at_respiratory_onset - .age_at_origin)
             ),
             vc_decline = ~ coalesce(
-                date_of_vc_decline - .date_of_origin,
+                as.duration(date_of_vc_decline - .date_of_origin),
                 dyears(age_at_vc_decline - .age_at_origin)
             ),
             ventilatory_support = ~ pmin(
-                date_of_niv - .date_of_origin,
-                date_of_niv_by_alsfrs - .date_of_origin,
-                date_of_23h_niv - .date_of_origin,
-                date_of_niv_23h_by_alsfrs - .date_of_origin,
-                date_of_tracheostomy - .date_of_origin,
-                date_of_imv_by_alsfrs - .date_of_origin,
+                as.duration(date_of_niv - .date_of_origin),
+                as.duration(date_of_niv_by_alsfrs - .date_of_origin),
+                as.duration(date_of_23h_niv - .date_of_origin),
+                as.duration(date_of_niv_23h_by_alsfrs - .date_of_origin),
+                as.duration(date_of_tracheostomy - .date_of_origin),
+                as.duration(date_of_imv_by_alsfrs - .date_of_origin),
                 dyears(age_at_niv - .age_at_origin),
                 dyears(age_at_niv_by_alsfrs - .age_at_origin),
                 dyears(age_at_23h_niv - .age_at_origin),
@@ -276,10 +279,10 @@ q3_time_to_events <- ext_main %>%
                 na.rm = TRUE
             ),
             niv = ~ pmin(
-                date_of_niv - .date_of_origin,
-                date_of_niv_by_alsfrs - .date_of_origin,
-                date_of_23h_niv - .date_of_origin,
-                date_of_niv_23h_by_alsfrs - .date_of_origin,
+                as.duration(date_of_niv - .date_of_origin),
+                as.duration(date_of_niv_by_alsfrs - .date_of_origin),
+                as.duration(date_of_23h_niv - .date_of_origin),
+                as.duration(date_of_niv_23h_by_alsfrs - .date_of_origin),
                 dyears(age_at_niv - .age_at_origin),
                 dyears(age_at_niv_by_alsfrs - .age_at_origin),
                 dyears(age_at_23h_niv - .age_at_origin),
@@ -287,86 +290,86 @@ q3_time_to_events <- ext_main %>%
                 na.rm = TRUE
             ),
             niv_23h = ~ pmin(
-                date_of_23h_niv - .date_of_origin,
-                date_of_niv_23h_by_alsfrs - .date_of_origin,
+                as.duration(date_of_23h_niv - .date_of_origin),
+                as.duration(date_of_niv_23h_by_alsfrs - .date_of_origin),
                 dyears(age_at_23h_niv - .age_at_origin),
                 dyears(age_at_niv_23h_by_alsfrs - .age_at_origin),
                 na.rm = TRUE
             ),
             tracheostomy = ~ pmin(
-                date_of_tracheostomy - .date_of_origin,
-                date_of_imv_by_alsfrs - .date_of_origin,
+                as.duration(date_of_tracheostomy - .date_of_origin),
+                as.duration(date_of_imv_by_alsfrs - .date_of_origin),
                 dyears(age_at_tracheostomy - .age_at_origin),
                 dyears(age_at_imv_by_alsfrs - .age_at_origin),
                 na.rm = TRUE
             ),
             gastrostomy = ~ coalesce(
-                date_of_gastrostomy - .date_of_origin,
+                as.duration(date_of_gastrostomy - .date_of_origin),
                 dyears(age_at_gastrostomy - .age_at_origin)
             ),
             kings_1 = ~ coalesce(
-                date_of_kings_1 - .date_of_origin,
+                as.duration(date_of_kings_1 - .date_of_origin),
                 dyears(age_at_kings_1 - .age_at_origin)
             ),
             kings_2 = ~ coalesce(
-                date_of_kings_2 - .date_of_origin,
+                as.duration(date_of_kings_2 - .date_of_origin),
                 dyears(age_at_kings_2 - .age_at_origin)
             ),
             kings_3 = ~ coalesce(
-                date_of_kings_3 - .date_of_origin,
+                as.duration(date_of_kings_3 - .date_of_origin),
                 dyears(age_at_kings_3 - .age_at_origin)
             ),
             kings_4 = ~ coalesce(
-                date_of_kings_4 - .date_of_origin,
+                as.duration(date_of_kings_4 - .date_of_origin),
                 dyears(age_at_kings_4 - .age_at_origin)
             ),
             kings_5 = ~ coalesce(
-                date_of_kings_5 - .date_of_origin,
+                as.duration(date_of_kings_5 - .date_of_origin),
                 dyears(age_at_kings_5 - .age_at_origin)
             ),
             mitos_1 = ~ coalesce(
-                date_of_mitos_1 - .date_of_origin,
+                as.duration(date_of_mitos_1 - .date_of_origin),
                 dyears(age_at_mitos_1 - .age_at_origin)
             ),
             mitos_2 = ~ coalesce(
-                date_of_mitos_2 - .date_of_origin,
+                as.duration(date_of_mitos_2 - .date_of_origin),
                 dyears(age_at_mitos_2 - .age_at_origin)
             ),
             mitos_3 = ~ coalesce(
-                date_of_mitos_3 - .date_of_origin,
+                as.duration(date_of_mitos_3 - .date_of_origin),
                 dyears(age_at_mitos_3 - .age_at_origin)
             ),
             mitos_4 = ~ coalesce(
-                date_of_mitos_4 - .date_of_origin,
+                as.duration(date_of_mitos_4 - .date_of_origin),
                 dyears(age_at_mitos_4 - .age_at_origin)
             ),
             mitos_5 = ~ coalesce(
-                date_of_mitos_5 - .date_of_origin,
+                as.duration(date_of_mitos_5 - .date_of_origin),
                 dyears(age_at_mitos_5 - .age_at_origin)
             ),
             death = ~ coalesce(
-                date_of_death - .date_of_origin,
+                as.duration(date_of_death - .date_of_origin),
                 dyears(age_at_death - .age_at_origin)
             )
         ),
         duration_for = list(
             vc_decline = ~ coalesce(
-                date_of_last_vc_assessment - .date_of_origin,
+                as.duration(date_of_last_vc_assessment - .date_of_origin),
                 dyears(age_at_last_vc_assessment - .age_at_origin)
             ),
             walking_support = ~ coalesce(
-                date_of_last_alsfrs_assessment - .date_of_origin,
+                as.duration(date_of_last_alsfrs_assessment - .date_of_origin),
                 dyears(age_at_last_alsfrs_assessment - .age_at_origin)
             ),
             respiratory_onset = ~ coalesce(
-                date_of_last_alsfrs_assessment - .date_of_origin,
+                as.duration(date_of_last_alsfrs_assessment - .date_of_origin),
                 dyears(age_at_last_alsfrs_assessment - .age_at_origin)
             ),
             death = ~ pmin(
                 dyears(age_at_transfer - .age_at_origin),
                 if_else(
                     vital_status == "Alive",
-                    date_of_transfer - .date_of_origin,
+                    as.duration(date_of_transfer - .date_of_origin),
                     as.duration(NA)
                 ),
                 na.rm = TRUE
@@ -376,30 +379,30 @@ q3_time_to_events <- ext_main %>%
                 dyears(age_at_transfer - .age_at_origin),
                 if_else(
                     vital_status == "Alive",
-                    date_of_transfer - .date_of_origin,
-                    date_of_death - .date_of_origin
+                    as.duration(date_of_transfer - .date_of_origin),
+                    as.duration(date_of_death - .date_of_origin)
                 ),
                 na.rm = TRUE
             )
         ),
         censored_for = list(
             death = ~ pmin(
-                date_of_tracheostomy - .date_of_origin,
-                date_of_imv_by_alsfrs - .date_of_origin,
+                as.duration(date_of_tracheostomy - .date_of_origin),
+                as.duration(date_of_imv_by_alsfrs - .date_of_origin),
                 dyears(age_at_tracheostomy - .age_at_origin),
                 dyears(age_at_imv_by_alsfrs - .age_at_origin),
                 na.rm = TRUE
             ),
             niv = ~ pmin(
-                date_of_tracheostomy - .date_of_origin,
-                date_of_imv_by_alsfrs - .date_of_origin,
+                as.duration(date_of_tracheostomy - .date_of_origin),
+                as.duration(date_of_imv_by_alsfrs - .date_of_origin),
                 dyears(age_at_tracheostomy - .age_at_origin),
                 dyears(age_at_imv_by_alsfrs - .age_at_origin),
                 na.rm = TRUE
             ),
             niv_23h = ~ pmin(
-                date_of_tracheostomy - .date_of_origin,
-                date_of_imv_by_alsfrs - .date_of_origin,
+                as.duration(date_of_tracheostomy - .date_of_origin),
+                as.duration(date_of_imv_by_alsfrs - .date_of_origin),
                 dyears(age_at_tracheostomy - .age_at_origin),
                 dyears(age_at_imv_by_alsfrs - .age_at_origin),
                 na.rm = TRUE
