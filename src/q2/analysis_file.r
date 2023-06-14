@@ -224,21 +224,23 @@ text (quantile (coef (m.spline)$ID[, "TIME"], 0.75), 0.05, round (quantile (coef
 source("src/ext/main.R")
 
 B_age_onset <- B %>% 
-  left_join(select(ext_main, id, calculated_age_at_onset, date_of_onset), by=c("ID"="id")) %>%
+  left_join(select(ext_main, id, age_at_onset, date_of_onset), by=c("ID"="id")) %>%
   mutate(
-    DATE = as.POSIXlt(DATE),
-    time_to_alsfrsr = case_when(!is.na(DATE) && !is.na(date_of_onset) ~ ((as.numeric(DATE-date_of_onset))/365.25)*12,
-                                !is.na(AGE) && !is.na(calculated_age_at_onset) ~ (AGE-calculated_age_at_onset)*12 
+    DATE = as.Date(DATE),
+    date_of_onset = as.Date(date_of_onset),
+    time_to_alsfrsr = case_when(!is.na(DATE) & !is.na(date_of_onset) ~ (as.numeric(DATE-date_of_onset)/365.25)*12,
+                                !is.na(AGE) & !is.na(age_at_onset) ~ (AGE-age_at_onset)*12 
                                     ),
     delta_alsfrsr = case_when(time_to_alsfrsr > 0 & TOTAL < 48 ~ (48-TOTAL)/time_to_alsfrsr,
                               TRUE ~ as.numeric(NA))) %>%
-  select(ID, SITE, DATE, AGE, TOTAL, date_of_onset, calculated_age_at_onset, time_to_alsfrsr, delta_alsfrsr)%>%
+  select(ID, SITE, DATE, AGE, TOTAL, date_of_onset, age_at_onset, time_to_alsfrsr, delta_alsfrsr)%>%
+  filter(!is.na(time_to_alsfrsr)) %>%
   #group_by(SITE) %>%
   summarise(median_delta = median(delta_alsfrsr, na.rm=T),
             lower_quartile = quantile(delta_alsfrsr, 0.25, na.rm=T),
             upper_quartile = quantile(delta_alsfrsr, 0.75, na.rm=T))
 
-
+    
 ##Data description table ####
 
 
