@@ -1,6 +1,8 @@
 ##### CHARACTERISING PROGRESSION IN GROUPS #####
 
 source("src/ext/main.r")
+source("src/ext/alsfrs.r")
+
 library(ggplot2)
 library(ggfortify)
 library(survival)
@@ -23,22 +25,39 @@ alsfrsr_rate <- ext_alsfrs %>%
                                                   TRUE ~ as.numeric(age_at_assessment)))
 
 
+######## Onset of symptoms by genetic status #########
+onset_by_gene <- ext_main %>%
+  
 
-######## Time to Gastrostomy
+
+######## Use of gastrostomy
+  
+gast_stats <- ext_main %>%
+  filter(!is.na(gastrostomy) & vital_status == "Deceased") %>%
+  group_by(gastrostomy) %>%
+  summarise(cnt=n()) %>%
+  mutate(
+    gene ="overall",
+    status = as.character(NA),
+    percent = cnt/sum(cnt)
+  )
 
 ## calculate time to gastrostomy from onset
-gast_stats <- ext_main %>%
-  select(id, site, gastrostomy, age_at_onset, age_at_gastrostomy) %>%
-  mutate(time_to_gast = age_at_gastrostomy - age_at_onset) %>%
-  group_by(site) %>%
-  summarise(n=n(),
-            number_with_gastrostomy = sum(gastrostomy == TRUE, na.rm=TRUE) ,
-            percentage_with_gastrostomy = round((number_with_gastrostomy/n)*100,1),
-            number_with_time_to_gastrostomy = sum(gastrostomy == TRUE & !is.na(time_to_gast), na.rm=TRUE),
-            percentage_with__time_gastrostomy = round((number_with_time_to_gastrostomy/n)*100,1),
-            median_time_to_gastrostomy = round(median(time_to_gast, na.rm=TRUE),1),
-            iqr_time_to_gastrostomy = round(IQR(time_to_gast, na.rm=TRUE),1)
-              )
+gast_stats_gene <- ext_main %>%
+  select(id, site, gastrostomy, age_at_onset, vital_status, age_at_gastrostomy, c9orf72_tested, c9orf72_status, sod1_tested, sod1_status, fus_tested, fus_status, tardbp_status, tardbp_tested) %>%
+  filter(!is.na(gastrostomy) & vital_status == "Deceased") %>%
+  pivot_longer(cols = -c(id, site, gastrostomy, vital_status, age_at_onset, age_at_gastrostomy), names_to = c("gene", ".value"), names_sep = "_") %>%
+  #filter(!is.na(tested) & tested != FALSE) %>%
+  group_by(gene, status, gastrostomy) %>%
+  summarise(cnt=n()) %>%
+  mutate(percent = cnt/sum(cnt)) %>%
+  #drop_na() %>%
+  bind_rows(gast_stats) %>%
+  filter(gastrostomy==T) %>%
+  ggplot() +
+  geom_col(aes(x=gene, fill=status,y=percent), position = "dodge")
+
+
 
 write.csv(gast_stats, "gast_stats.csv")
 
