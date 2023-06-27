@@ -6,7 +6,7 @@ suppressPackageStartupMessages({
 })
 
 ext_load_data <- function(path, ...) {
-    data_dir <- Sys.getenv("PALS_EXTANT_DATADIR", unset = "./data")
+    data_dir <- Sys.getenv("PALS_EXTANT_DATADIR", unset = "./NEWPALSDATA")
     read_excel(file.path(data_dir, path), na = c(
         "Missing", "N/A", "NA", "Unknown"
     ), ...) %>% ext_normalize_names()
