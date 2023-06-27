@@ -17,7 +17,7 @@ checkFRS <- function (ID){
 }
 
 #### 1. Data ####
-D <- read.xlsx ("data/P-ALS_Ext_V2_ALSFRS-R.xlsx", detectDates = T)
+D <- read.xlsx ("NEWPALSDATA/P-ALS_Ext_V2_ALSFRS-R.xlsx", detectDates = T)
 
 #### 2. Cleaning ####
 #. Rename cols
