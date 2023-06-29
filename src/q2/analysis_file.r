@@ -242,86 +242,100 @@ B_age_onset <- B %>%
 
 
 ##Data description table ####
+source("src/ext/main.R")
+
+alsfrsr_ids <- read.csv("src/q2/IDS.csv", header=T) %>% pull()
+
+ext_main_cat_clean <- ext_main %>%
+  mutate(
+    diagnosis_clean = case_when(
+      diagnosis %in% c(
+        "ALS",
+        "ALS plus",
+        "ALS/FTD",
+        "Atypical",
+        "Head drop",
+        "PBP") | motor_neuron_predominance == "UMN+LMN" ~ "ALS",
+      diagnosis %in% c(
+        "PLS",
+        "PLS/ALS") | motor_neuron_predominance == "UMN" ~ "PLS",
+      diagnosis %in% c(
+        "PMA") | motor_neuron_predominance == "LMN" ~ "PMA",
+      diagnosis %in% c(
+        "UMN Predominant ALS",
+        "Suspected PLS") ~ "UMN predominant ALS",
+      diagnosis %in% c(
+        "LMN Predominant ALS",
+        "Flail arm",
+        "Flail leg") ~ "LMN predominant ALS",
+      diagnosis %in% c(
+        "MMN",
+        "FTD",
+        "Unknown (son of ALS patient)") ~ as.character(NA),
+      TRUE ~ as.character(NA)
+    ),# end case_when
+      site_of_onset_clean = case_when(
+        site_of_onset %in% c("Bulbar",
+                             "Bulbaire",
+                             "Bulbar and Cognitive/Behavioural",
+                             "Cognitive/Behavioural and Bulbar",
+                             "PBP") ~ "Bulbar",
+        site_of_onset %in% c("Spinal",
+                             "Arms",
+                             "Cervical",
+                             "Flail-Arm",
+                             "Flail-Leg",
+                             "Hemiplegic",
+                             "Lower limb",
+                             "Spinal",
+                             "Spinal and Cognitive/Behavioural",
+                             "Cognitive/Behavioural and Spinal",
+                             "Upper limb",
+                             "Neck",
+                             "PMA",
+                             "PLS",
+                             "Trunk",
+                             "trunk") | grepl("Membre", site_of_onset, fixed=FALSE) ~ "Spinal",
+        site_of_onset %in% c("Respiratory",
+                             "Respiratoire",
+                             "Thoracic/Respiratory",
+                             "Thoracic/respiratory",
+                             "respiratory") ~ "Respiratory",
+        site_of_onset %in% c("Bulbar and Spinal",
+                             "Bulbar and Thoracic/Respiratory",
+                             "Generalised",
+                             "Generalized",
+                             "Mixed Presentation",
+                             "Thoracic/Respiratory and Spinal"
+          
+        ) ~ "Generalised",
+        site_of_onset %in% c("Monomyelic",
+                             "Other",
+                             "Pseudopolyneuritic",
+                             "Weightloss",
+                             "unclear weakness",
+                             "Cognitive",
+                             "Cognitive impairment",
+                             "Cognitive/Behavioural",
+                             "Cognitive/Behavioural and Spinal",
+                             "FTD") ~ as.character(NA),
+        TRUE ~ site_of_onset)
+        
+    )
 
 
 
-alsfrsr_ids <- unique(D$ID)
-
-ext_main_dx_clean <- ext_main %>%
-  mutate(diagnosis_ALS = diagnosis %in% c(
-    "ALS",
-    "ALS plus",
-    "ALS/FTD",
-    "Atypical",
-    "Head drop",
-    "PBP"),
-    diagnosis_PLS = diagnosis %in% c(
-      "PLS",
-      "PLS/ALS"
-    ),
-    diagnosis_PMA = diagnosis %in% c(
-      "PMA"
-    ),
-    diagnosis_UMNpred = diagnosis %in% c(
-      "UMN Predominant ALS",
-      "Suspected PLS"
-    ),
-    diagnosis_LMNpred = diagnosis %in% c(
-      "LMN Predominant ALS",
-      "Flail arm",
-      "Flail leg"
-    ), 
-    diagnosis_not_ALS = diagnosis %in% c(
-      "MMN",
-      "FTD",
-      "Unknown (son of ALS patient)"
-    ),
-    diagnosis_na = is.na(diagnosis)
-  ) 
-
-
-main_summary_alsfrsr <- ext_main_dx_clean %>%
-  mutate(ALSFRSR = case_when(id %in% alsfrsr_ids ~ 1,
-                             TRUE ~ 0 )) %>%
-  filter(ALSFRSR == 1) %>%
-  summarise(n = n(),
-            mean_age_onset = mean(as.numeric(calculated_age_at_onset), na.rm=T),
-            mean_age_diagnosis = mean(as.numeric(calculated_age_at_diagnosis), na.rm=T),
-            female_percent = round((sum(sex=="Female", na.rm=T)/n())*100,1),
-            male_percent = round((sum(sex=="Male", na.rm=T)/n())*100,1),
-            bulbar_onset_percent = round((sum(bulbar_onset==TRUE)/n())*100,1),
-            spinal_onset_percent = round((sum(spinal_onset==TRUE)/n())*100,1),
-            respiratory_onset_percent = round((sum(respiratory_onset==TRUE)/n())*100,1),
-            cognitive_onset_percent = round((sum(cognitive_onset==TRUE)/n())*100,1),
-            na_onset_percent = round((sum(is.na(site_of_onset))/n())*100,1),
-            diagnosis_ALS_percent = round((sum(diagnosis_ALS==TRUE)/n())*100,1),
-            diagnosis_PLS_percent = round((sum(diagnosis_PLS==TRUE)/n())*100,1),
-            diagnosis_PMA_percent = round((sum(diagnosis_PMA==TRUE)/n())*100,1),
-            diagnosis_na_percent = round((sum(diagnosis_na==TRUE)/n())*100,1),
-            mean_disease_duration = mean(age_at_death-age_at_onset, na.rm = T),
-            median_disease_duration = median(age_at_death-age_at_onset, na.rm = T))
-
-main_summary <- ext_main_dx_clean %>%
-  summarise(n = n(),
-            mean_age_onset = mean(as.numeric(calculated_age_at_onset), na.rm=T),
-            mean_age_diagnosis = mean(as.numeric(calculated_age_at_diagnosis), na.rm=T),
-            female_percent = round((sum(sex=="Female", na.rm=T)/n())*100,1),
-            male_percent = round((sum(sex=="Male", na.rm=T)/n())*100,1),
-            bulbar_onset_percent = round((sum(bulbar_onset==TRUE)/n())*100,1),
-            spinal_onset_percent = round((sum(spinal_onset==TRUE)/n())*100,1),
-            respiratory_onset_percent = round((sum(respiratory_onset==TRUE)/n())*100,1),
-            cognitive_onset_percent = round((sum(cognitive_onset==TRUE)/n())*100,1),
-            na_onset_percent = round((sum(is.na(site_of_onset))/n())*100,1),
-            diagnosis_ALS_percent = round((sum(diagnosis_ALS==TRUE)/n())*100,1),
-            diagnosis_PLS_percent = round((sum(diagnosis_PLS==TRUE)/n())*100,1),
-            diagnosis_PMA_percent = round((sum(diagnosis_PMA==TRUE)/n())*100,1),
-            diagnosis_na_percent = round((sum(diagnosis_na==TRUE)/n())*100,1),
-            mean_disease_duration = mean(age_at_death-age_at_onset, na.rm = T),
-            median_disease_duration = median(age_at_death-age_at_onset, na.rm = T))
-
-compare <- main_summary %>%
-  bind_rows(main_summary_alsfrsr) %>%
-  mutate(header = c("main", "alsfrsr")) %>%
-  pivot_longer(-header) %>%
-  pivot_wider(name, names_from="header", values_from = "value") %>%
-  mutate_if(is.numeric, round, 1) 
+main_summary_alsfrsr <- ext_main_cat_clean %>%
+  mutate(ALSFRSR = case_when(id %in% alsfrsr_ids ~ "Included in joint model",
+                             TRUE ~ "Not included in joint model" )) %>%
+  select(calculated_age_at_onset, calculated_age_at_diagnosis, sex, site_of_onset_clean, diagnosis_clean, ALSFRSR) %>%
+  tbl_summary(by="ALSFRSR",
+              label = list(
+                calculated_age_at_onset ~ "Median age at onset", 
+                calculated_age_at_diagnosis ~ "Median age at diagnosis",
+                sex ~ "Sex",
+                site_of_onset_clean ~ "Site of onset of motor symptoms",
+                diagnosis_clean ~ "Diagnostic category")) %>%
+  add_p()
+    
+ 
