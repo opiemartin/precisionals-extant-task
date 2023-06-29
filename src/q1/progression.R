@@ -29,35 +29,69 @@ alsfrsr_rate <- ext_alsfrs %>%
 onset_by_gene <- ext_main %>%
   
 
-
 ######## Use of gastrostomy
   
 gast_stats <- ext_main %>%
-  filter(!is.na(gastrostomy) & vital_status == "Deceased") %>%
+  filter(!is.na(gastrostomy) & vital_status == "Deceased" & site !="King's") %>%
   group_by(gastrostomy) %>%
   summarise(cnt=n()) %>%
   mutate(
-    gene ="overall",
+    site ="overall",
     status = as.character(NA),
     percent = cnt/sum(cnt)
   )
 
 ## calculate time to gastrostomy from onset
-gast_stats_gene <- ext_main %>%
+gast_by_site <- ext_main %>%
   select(id, site, gastrostomy, age_at_onset, vital_status, age_at_gastrostomy, c9orf72_tested, c9orf72_status, sod1_tested, sod1_status, fus_tested, fus_status, tardbp_status, tardbp_tested) %>%
-  filter(!is.na(gastrostomy) & vital_status == "Deceased") %>%
+  filter(vital_status == "Deceased" & site %in% sites_gast) %>%
   pivot_longer(cols = -c(id, site, gastrostomy, vital_status, age_at_onset, age_at_gastrostomy), names_to = c("gene", ".value"), names_sep = "_") %>%
-  #filter(!is.na(tested) & tested != FALSE) %>%
+  filter(!is.na(tested) & tested != FALSE) %>%
   group_by(gene, status, gastrostomy) %>%
   summarise(cnt=n()) %>%
   mutate(percent = cnt/sum(cnt)) %>%
   #drop_na() %>%
-  bind_rows(gast_stats) %>%
-  filter(gastrostomy==T) %>%
+  #bind_rows(gast_stats) %>%
+  #filter(tested==T) %>%
   ggplot() +
-  geom_col(aes(x=gene, fill=status,y=percent), position = "dodge")
+  geom_col(aes(
+               x=site, 
+               fill=gastrostomy,
+               y=percent), position = "dodge") +
+  theme_classic()
 
+total_tested <- ext_main %>%
+  select(id, site, gastrostomy, age_at_onset, vital_status, age_at_gastrostomy, c9orf72_tested, c9orf72_status, sod1_tested, sod1_status, fus_tested, fus_status, tardbp_status, tardbp_tested) %>%
+  filter(vital_status == "Deceased" & site %in% sites_gast) %>%
+  pivot_longer(cols = -c(id, site, gastrostomy, vital_status, age_at_onset, age_at_gastrostomy), names_to = c("gene", ".value"), names_sep = "_") %>%
+  filter(!is.na(tested) & tested != FALSE) %>%
+  group_by(gene, status) %>%
+  summarise(cnt=n()) 
 
+gast_perc <- left_join(gast_by_site, total_tested, by=c("gene"="gene", "status"="status"), multiple="all") %>%
+  mutate(percent = (cnt.x/cnt.y)*100) %>%
+  ggplot() +
+  geom_col(aes(
+    x=interaction(status, gene), 
+    fill=gastrostomy,
+    y=percent)
+    #position = "dodge"
+    ) +
+  coord_cartesian(ylim = c(0, 100)) +
+  annotate("text", x = 1:8, y = - 10,
+           label = rep(c("Negative", "Positive"), 4)) +
+  annotate("text", c(1.5, 3.5, 5.5, 7.5), y = - 15, label = c("c9orf72", "fus", "sod1", "tardbp")) +
+  theme_classic() +
+  theme(plot.margin = unit(c(1, 1, 4, 1), "lines"),
+        axis.title.x = element_blank(),
+        axis.text.x = element_blank())
+
+g2 <- ggplot_gtable(ggplot_build(gast_perc))
+g2$layout$clip[g2$layout$name == "panel"] <- "off"
+grid.draw(g2)
+
+### sites that have mix of no and na values
+sites_gast <- c("Bellvitge", "Karolinska", "Turin")
 
 write.csv(gast_stats, "gast_stats.csv")
 
