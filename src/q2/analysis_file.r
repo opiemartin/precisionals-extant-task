@@ -243,6 +243,7 @@ B_age_onset <- B %>%
 
 ##Data description table ####
 source("src/ext/main.R")
+source("src/ext/alsfrs.r")
 
 alsfrsr_ids <- read.csv("src/q2/IDS.csv", header=T) %>% pull()
 
@@ -255,6 +256,8 @@ ext_main_cat_clean <- ext_main %>%
         "ALS/FTD",
         "Atypical",
         "Head drop",
+        "Flail arm",
+        "Flail leg",
         "PBP") | motor_neuron_predominance == "UMN+LMN" ~ "ALS",
       diagnosis %in% c(
         "PLS",
@@ -263,11 +266,9 @@ ext_main_cat_clean <- ext_main %>%
         "PMA") | motor_neuron_predominance == "LMN" ~ "PMA",
       diagnosis %in% c(
         "UMN Predominant ALS",
-        "Suspected PLS") ~ "UMN predominant ALS",
+        "Suspected PLS") ~ "ALS",
       diagnosis %in% c(
-        "LMN Predominant ALS",
-        "Flail arm",
-        "Flail leg") ~ "LMN predominant ALS",
+        "LMN Predominant ALS") ~ "ALS",
       diagnosis %in% c(
         "MMN",
         "FTD",
@@ -319,23 +320,36 @@ ext_main_cat_clean <- ext_main %>%
                              "Cognitive/Behavioural",
                              "Cognitive/Behavioural and Spinal",
                              "FTD") ~ as.character(NA),
-        TRUE ~ site_of_onset)
-        
+        TRUE ~ site_of_onset), # end case_when
+        site_of_onset_clean = factor(site_of_onset_clean, levels=c("Bulbar","Spinal","Respiratory","Generalised")),
+        diagnosis_clean = factor(diagnosis_clean, levels=c("ALS","PLS","PMA"))
     )
 
 
 
 main_summary_alsfrsr <- ext_main_cat_clean %>%
+  left_join(ext_baseline) %>%
   mutate(ALSFRSR = case_when(id %in% alsfrsr_ids ~ "Included in joint model",
                              TRUE ~ "Not included in joint model" )) %>%
-  select(calculated_age_at_onset, calculated_age_at_diagnosis, sex, site_of_onset_clean, diagnosis_clean, ALSFRSR) %>%
+  select(calculated_age_at_onset, 
+         calculated_age_at_diagnosis, 
+         sex, 
+         site_of_onset_clean, 
+         diagnosis_clean, 
+         ALSFRSR, 
+         total_score, 
+         delta_fs) %>%
   tbl_summary(by="ALSFRSR",
               label = list(
                 calculated_age_at_onset ~ "Median age at onset", 
                 calculated_age_at_diagnosis ~ "Median age at diagnosis",
                 sex ~ "Sex",
                 site_of_onset_clean ~ "Site of onset of motor symptoms",
-                diagnosis_clean ~ "Diagnostic category")) %>%
-  add_p()
+                diagnosis_clean ~ "Diagnostic category",
+                total_score ~ "ALSFRS-R score at baseline",
+                delta_fs ~ "Delta ALSFRS-R")) %>%
+  add_p() %>%
+  as_gt() %>%
+  gt::gtsave(filename = "table1.png")
     
  
